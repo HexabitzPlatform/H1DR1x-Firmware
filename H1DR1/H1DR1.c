@@ -57,6 +57,9 @@ void Module_Init(void)
 	
 	/* RS485 port */
   MX_USART4_UART_Init();
+	RS485_DE_RE_Init();
+	RS485_RECEIVER_EN();
+	//RS485_DRIVER_EN();
 	
 }
 /*-----------------------------------------------------------*/
