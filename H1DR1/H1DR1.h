@@ -98,6 +98,10 @@
 	#define	RS485_DE_PORT		GPIOB
 #endif
 
+
+#define NUM_MODULE_PARAMS		1
+			
+			
 /* H01R0_Status Type Definition */  
 typedef enum 
 {
