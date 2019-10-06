@@ -36,7 +36,7 @@
 #define _P6 
 
 /* Define available USARTs */
-#define _Usart1 1
+//#define _Usart1 1
 #define _Usart2 1
 #define _Usart3 1
 #define _Usart4 1

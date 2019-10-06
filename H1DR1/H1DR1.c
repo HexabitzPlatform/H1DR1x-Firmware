@@ -32,9 +32,6 @@ UART_HandleTypeDef huart6;
 int MB_Param = 0;
 module_param_t modParam[NUM_MODULE_PARAMS] = {{.paramPtr=&MB_Param, .paramFormat=FMT_FLOAT, .paramName="MB_Param"}};
 
-/* Module exported parameters ------------------------------------------------*/
-module_param_t modParam[NUM_MODULE_PARAMS] = {{.paramPtr=NULL, .paramFormat=FMT_FLOAT, .paramName=""}};
-
 /* Private variables ---------------------------------------------------------*/
 #define Bridge       0
 #define RTU          1
