@@ -46,7 +46,7 @@ FlagStatus UartTxReady = RESET;
 
 
 /* USART1 init function */
-#ifdef _Usart1
+
 void MB_PORT_Init(void)
 {
   huart1.Instance = USART1;
@@ -60,13 +60,13 @@ void MB_PORT_Init(void)
   huart1.Init.OneBitSampling = UART_ONEBIT_SAMPLING_DISABLED;
   huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
 	HAL_UART_Init(&huart1);
-	#if _P5pol_reversed
+	#if _P6pol_reversed
 		huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_SWAP_INIT;
 		huart1.AdvancedInit.Swap = UART_ADVFEATURE_SWAP_ENABLE;
 	  HAL_UART_Init(&huart1);
 	#endif	
 }
-#endif
+
 
 /* USART2 init function */
 #ifdef _Usart2
@@ -129,7 +129,7 @@ void MX_USART4_UART_Init(void)
   huart4.Init.OneBitSampling = UART_ONEBIT_SAMPLING_DISABLED;
   huart4.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
 	HAL_UART_Init(&huart4);
-	#if _P6pol_reversed	
+	#if _P1pol_reversed	
 		huart4.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_SWAP_INIT;
 		huart4.AdvancedInit.Swap = UART_ADVFEATURE_SWAP_ENABLE;
 	  HAL_UART_Init(&huart4);
@@ -152,7 +152,7 @@ void MX_USART5_UART_Init(void)
   huart5.Init.OneBitSampling = UART_ONEBIT_SAMPLING_DISABLED;
   huart5.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
 	HAL_UART_Init(&huart5);
-	#if _P1pol_reversed
+	#if _P5pol_reversed
 		huart5.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_SWAP_INIT;
 		huart5.AdvancedInit.Swap = UART_ADVFEATURE_SWAP_ENABLE;
 	  HAL_UART_Init(&huart5);
