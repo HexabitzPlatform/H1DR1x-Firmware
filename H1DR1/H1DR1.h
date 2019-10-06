@@ -108,11 +108,15 @@
 	#define	RS485_DRIVER_DIS()		HAL_GPIO_WritePin(RS485_DE_PORT, RS485_DE_PIN, GPIO_PIN_RESET)
 #endif
 
+/* Module_Status Type Definition */
+#define NUM_MODULE_PARAMS		1
+
 /* H01R0_Status Type Definition */  
 typedef enum 
 {
   H1DR1_OK = 0,
 	H1DR1_ERR_UnknownMessage = 1,
+	H1DR1_ERR_WrongParams,
 	H1DR1_ERROR = 255
 } Module_Status;
 
@@ -130,12 +134,13 @@ extern UART_HandleTypeDef huart5;
 extern UART_HandleTypeDef huart6;
 
 /* Define UART Init prototypes */
-extern void MX_USART1_UART_Init(void);
+extern void MB_PORT_Init(void);
 extern void MX_USART2_UART_Init(void);
 extern void MX_USART3_UART_Init(void);
 extern void MX_USART4_UART_Init(void);
 extern void MX_USART5_UART_Init(void);
 extern void MX_USART6_UART_Init(void);
+extern void MX_TIM7_Init(void);
 
 
 
@@ -143,6 +148,7 @@ extern void MX_USART6_UART_Init(void);
 	|														Message Codes	 														 	|
    ----------------------------------------------------------------------- 
 */
+#define CODE_H1DR1_MODE            2900
 
 
 
@@ -151,7 +157,9 @@ extern void MX_USART6_UART_Init(void);
 	|																APIs	 																 	|
    ----------------------------------------------------------------------- 
 */
-
+void SetupBridgeMode(void);
+void SetupModbusRTU(void);
+void SetupModbusASCII(void);
 
 
 /* -----------------------------------------------------------------------
