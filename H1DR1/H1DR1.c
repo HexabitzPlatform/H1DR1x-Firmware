@@ -32,6 +32,9 @@ UART_HandleTypeDef huart6;
 int MB_Param = 0;
 module_param_t modParam[NUM_MODULE_PARAMS] = {{.paramPtr=&MB_Param, .paramFormat=FMT_FLOAT, .paramName="MB_Param"}};
 
+/* Module exported parameters ------------------------------------------------*/
+module_param_t modParam[NUM_MODULE_PARAMS] = {{.paramPtr=NULL, .paramFormat=FMT_FLOAT, .paramName=""}};
+
 /* Private variables ---------------------------------------------------------*/
 #define Bridge       0
 #define RTU          1
@@ -104,7 +107,7 @@ void Module_Init(void)
 
 /* --- H1DR1 message processing task. 
 */
-Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uint8_t dst)
+Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uint8_t dst, uint8_t shift)
 {
 	Module_Status result = H1DR1_OK;
 	
