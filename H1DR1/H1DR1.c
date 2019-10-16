@@ -55,7 +55,7 @@ static portBASE_TYPE modeCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen,
 const CLI_Command_Definition_t demoCommandDefinition =
 {
 	( const int8_t * ) "demo", /* The command string to type. */
-	( const int8_t * ) "(H1DR1) demo:\r\n Demo bidirectional RS485 communication. Requires two modules\r\n\r\n",
+	( const int8_t * ) "demo:\r\n Demo bidirectional RS485 communication. Requires two modules\r\n\r\n",
 	demoCommand, /* The function to run. */
 	0 /* no parameter is expected. */
 };
@@ -64,7 +64,7 @@ const CLI_Command_Definition_t demoCommandDefinition =
 const CLI_Command_Definition_t modeCommandDefinition =
 {
   ( const int8_t * ) "mode", /* The command string to type. */
-  ( const int8_t * ) "(H1DR1) sample:\r\n Setup RS485 port in the required mode\r\n\r\n",
+  ( const int8_t * ) "mode:\r\n Setup RS485 port in the required mode\r\n\r\n",
   modeCommand, /* The function to run. */
   -1 /* Multiparameters are expected. */
 };
@@ -89,8 +89,6 @@ void Module_Init(void)
 	
 	/* RS485 port */
 	MB_PORT_Init();
-  //MX_USART4_UART_Init();
-	//MX_USART1_UART_Init();
 	MX_TIM7_Init();
 	//xMBPortTimersInit();
 	RS485_DE_RE_Init();
