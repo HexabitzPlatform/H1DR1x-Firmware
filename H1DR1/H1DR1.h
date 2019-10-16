@@ -1,5 +1,5 @@
 /*
-    BitzOS (BOS) V0.1.5 - Copyright (C) 2017-2018 Hexabitz
+    BitzOS (BOS) V0.2.0 - Copyright (C) 2017-2019 Hexabitz
     All rights reserved
 		
     File Name     : H1DR1.h
@@ -44,12 +44,12 @@
 #define _Usart6	1
 
 /* Port-UART mapping */
-#define P1uart 			&huart5
+#define P1uart 			&huart4
 #define P2uart 			&huart2	
 #define P3uart 			&huart6
 #define P4uart 			&huart3
-#define P5uart 			&huart1	
-#define P6uart 			&huart4	
+#define P5uart 			&huart5	
+#define P6uart 			&huart1	
 #define P_RS485uart 		P6uart
 
 /* Port Definitions */
