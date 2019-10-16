@@ -33,7 +33,7 @@
   */
 
 /*
-		MODIFIED by Hexabitz for BitzOS (BOS) V0.1.5 - Copyright (C) 2017-2018 Hexabitz
+		MODIFIED by Hexabitz for BitzOS (BOS) V0.2.0 - Copyright (C) 2017-2019 Hexabitz
     All rights reserved
 */
 
@@ -79,11 +79,11 @@ void RS485_DE_RE_Init(void)
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	
 	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
-	GPIO_InitStruct.Pin = RS485_RE_PIN;
-	HAL_GPIO_Init(RS485_RE_PORT, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin = RS485_RE_DE_PIN;
+	HAL_GPIO_Init(RS485_RE_DE_PORT, &GPIO_InitStruct);
 	
-	GPIO_InitStruct.Pin = RS485_DE_PIN;
-	HAL_GPIO_Init(RS485_DE_PORT, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin = RS485_RE_DE_PIN;
+	HAL_GPIO_Init(RS485_RE_DE_PORT, &GPIO_InitStruct);
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
