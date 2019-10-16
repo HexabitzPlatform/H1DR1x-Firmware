@@ -43,8 +43,7 @@ TaskHandle_t LoadcellHandle = NULL;
 TaskHandle_t ModbusRTUTaskHandle = NULL;
 
 /* Private function prototypes -----------------------------------------------*/	
-extern void ModbusRTUTask(void * argument);    //const
-void LoadcellTask(void * argument);
+void ModbusRTUTask(void * argument);    //const
 
 
 /* Create CLI commands --------------------------------------------------------*/
@@ -95,7 +94,7 @@ void Module_Init(void)
 	RS485_RECEIVER_EN();
 	//RS485_DRIVER_EN();
 	
-	xTaskCreate(ModbusRTUTask, (const char*) "ModbusRTUTask", (2*configMINIMAL_STACK_SIZE), NULL, osPriorityNormal, &ModbusRTUTaskHandle);
+	xTaskCreate(ModbusRTUTask, (const char*) "ModbusRTUTask", (2*configMINIMAL_STACK_SIZE), NULL, osPriorityNormal-osPriorityIdle, &ModbusRTUTaskHandle);
 
 }
 /*-----------------------------------------------------------*/
