@@ -47,7 +47,7 @@ FlagStatus UartTxReady = RESET;
 
 /* USART1 init function */
 
-void MB_PORT_Init(void)
+void MX_USART1_UART_Init(void)    
 {
   huart1.Instance = USART1;
   huart1.Init.BaudRate = DEF_ARRAY_BAUDRATE;
@@ -182,6 +182,12 @@ void MX_USART6_UART_Init(void)
 	#endif	
 }
 #endif
+
+/*MB Port Initialization */
+void MB_PORT_Init(void)
+{
+	MX_USART1_UART_Init();
+}
 
 void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 {

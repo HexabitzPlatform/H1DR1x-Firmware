@@ -39,12 +39,10 @@ module_param_t modParam[NUM_MODULE_PARAMS] = {{.paramPtr=&MB_Param, .paramFormat
 
 uint8_t H1DR1_Mode;
 //osThreadId ModbusRTUTaskHandle;
-TaskHandle_t LoadcellHandle = NULL;
 TaskHandle_t ModbusRTUTaskHandle = NULL;
 
 /* Private function prototypes -----------------------------------------------*/	
 void ModbusRTUTask(void * argument);    //const
-
 
 /* Create CLI commands --------------------------------------------------------*/
 static portBASE_TYPE demoCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
@@ -88,11 +86,13 @@ void Module_Init(void)
 	
 	/* RS485 port */
 	MB_PORT_Init();
-	MX_TIM7_Init();
-	//xMBPortTimersInit();
+	//MX_TIM7_Init();
+	xMBPortTimersInit(20);
 	RS485_DE_RE_Init();
 	RS485_RECEIVER_EN();
 	//RS485_DRIVER_EN();
+	vMBPortTimersEnable( );
+	vMBPortSerialEnable( TRUE, FALSE );
 	
 	xTaskCreate(ModbusRTUTask, (const char*) "ModbusRTUTask", (2*configMINIMAL_STACK_SIZE), NULL, osPriorityNormal-osPriorityIdle, &ModbusRTUTaskHandle);
 

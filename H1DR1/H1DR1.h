@@ -36,7 +36,7 @@
 #define _P6 
 
 /* Define available USARTs */
-//#define _Usart1 1
+#define _Usart1 1
 #define _Usart2 1
 #define _Usart3 1
 #define _Usart4 1
@@ -136,11 +136,15 @@ extern UART_HandleTypeDef huart6;
 
 /* Define UART Init prototypes */
 extern void MB_PORT_Init(void);
+extern void MX_USART1_UART_Init(void);
 extern void MX_USART2_UART_Init(void);
 extern void MX_USART3_UART_Init(void);
 extern void MX_USART4_UART_Init(void);
 extern void MX_USART5_UART_Init(void);
 extern void MX_USART6_UART_Init(void);
+
+/* Define TIM7 Inits */
+
 extern void MX_TIM7_Init(void);
 
 
