@@ -11,7 +11,7 @@
 			>> USARTs 2,3,4,5,6 for module ports.
 			>> USART 1 for MAX14840EASA+.
 			>> PA12 for RE/DE (receiver output enable).
-			>> TIM7 for port (receiver output enable).
+			>> TIM16 for port (receiver output enable).
 			
 */
 	

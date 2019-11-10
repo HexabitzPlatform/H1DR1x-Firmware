@@ -38,7 +38,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "BOS.h"
-//#include "stm32f0xx_it.h"
+//#include "H1DR1.h"
 
 /*USER CODE BEGIN 0 */
 #include "mb.h"
@@ -53,10 +53,9 @@ extern uint8_t UARTRxBuf[NumOfPorts][MSG_RX_BUF_SIZE];
 //extern uint8_t UARTTxBuf[3][MSG_TX_BUF_SIZE];
 
 /* External function prototypes ----------------------------------------------*/
-extern TIM_HandleTypeDef htim7;
+TIM_HandleTypeDef htim16;
 extern UART_HandleTypeDef huart1;
 
-extern TIM_HandleTypeDef htim6;
 
 extern TaskHandle_t xCommandConsoleTaskHandle;
 extern void NotifyMessagingTaskFromISR(uint8_t port);
@@ -241,19 +240,19 @@ void DMA1_Ch4_7_DMA2_Ch3_5_IRQHandler(void)
 
 
 /**
-* @brief This function handles TIM7 global interrupt.
+* @brief This function handles TIM16 global interrupt.
 */
-void TIM7_IRQHandler(void)
+void TIM16_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM7_IRQn 0 */
-	if(__HAL_TIM_GET_FLAG(&htim7, TIM_FLAG_UPDATE) != RESET && __HAL_TIM_GET_IT_SOURCE(&htim7, TIM_IT_UPDATE) !=RESET) {
-    __HAL_TIM_CLEAR_IT(&htim7, TIM_IT_UPDATE);
+	if(__HAL_TIM_GET_FLAG(&htim16, TIM_FLAG_UPDATE) != RESET && __HAL_TIM_GET_IT_SOURCE(&htim16, TIM_IT_UPDATE) !=RESET) {
+    __HAL_TIM_CLEAR_IT(&htim16, TIM_IT_UPDATE);
     if (!--downcounter)
       pxMBPortCBTimerExpired();
   }
 
   /* USER CODE END TIM7_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim7);
+  HAL_TIM_IRQHandler(&htim16);
   /* USER CODE BEGIN TIM7_IRQn 1 */
 
   /* USER CODE END TIM7_IRQn 1 */

@@ -143,10 +143,6 @@ extern void MX_USART4_UART_Init(void);
 extern void MX_USART5_UART_Init(void);
 extern void MX_USART6_UART_Init(void);
 
-/* Define TIM7 Inits */
-
-extern void MX_TIM7_Init(void);
-
 
 
 /* -----------------------------------------------------------------------
