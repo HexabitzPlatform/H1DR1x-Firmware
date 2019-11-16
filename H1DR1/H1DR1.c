@@ -11,7 +11,7 @@
 			>> USARTs 2,3,4,5,6 for module ports.
 			>> USART 1 for MAX14840EASA+.
 			>> PA12 for RE/DE (receiver output enable).
-			>> TIM16 for port (receiver output enable).
+			>> TIM16 for MB port.
 			
 */
 	
@@ -38,7 +38,6 @@ module_param_t modParam[NUM_MODULE_PARAMS] = {{.paramPtr=&MB_Param, .paramFormat
 #define ASCII        2
 
 uint8_t H1DR1_Mode;
-//osThreadId ModbusRTUTaskHandle;
 TaskHandle_t ModbusRTUTaskHandle = NULL;
 
 /* Private function prototypes -----------------------------------------------*/	
@@ -67,7 +66,6 @@ const CLI_Command_Definition_t modeCommandDefinition =
 };
 
 
-
 /* -----------------------------------------------------------------------
 	|												 Private Functions	 														|
    ----------------------------------------------------------------------- 
@@ -85,15 +83,10 @@ void Module_Init(void)
   MX_USART6_UART_Init();
 	
 	/* RS485 port */
-	MB_PORT_Init();
-	//MX_TIM7_Init();
-	xMBPortTimersInit(20);
 	RS485_DE_RE_Init();
-	RS485_RECEIVER_EN();
-	//RS485_DRIVER_EN();
-	vMBPortTimersEnable( );
-	vMBPortSerialEnable( TRUE, FALSE );
-	
+	eMBErrorCode eStatus = eMBInit( MB_RTU, 0x09, 1, 9600, MB_PAR_NONE );
+  eStatus = eMBEnable();
+
 	xTaskCreate(ModbusRTUTask, (const char*) "ModbusRTUTask", (2*configMINIMAL_STACK_SIZE), NULL, osPriorityNormal-osPriorityIdle, &ModbusRTUTaskHandle);
 
 }
@@ -182,7 +175,7 @@ void SetupBridgeMode(void)
 
 /*-----------------------------------------------------------*/
 
-/* --- setup the Modbus mode as ASCII
+/* --- setup the Modbus mode as RTU
 */
 void SetupModbusRTU(void)
 {
