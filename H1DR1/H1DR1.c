@@ -1,5 +1,5 @@
 /*
-    BitzOS (BOS) V0.1.5 - Copyright (C) 2017-2018 Hexabitz
+    BitzOS (BOS) V0.1.7 - Copyright (C) 2017-2019 Hexabitz
     All rights reserved
 
     File Name     : H1DR1.c
@@ -8,15 +8,16 @@
 		
 		Required MCU resources : 
 		
-			>> USARTs 1,2,3,5,6 for module ports.
-			>> USART 4 for MAX14840EASA+.
-			>> PB0 for DE (driver output enable).
-			>> PA7 for \RE (receiver output enable).
+			>> USARTs 2,3,4,5,6 for module ports.
+			>> USART 1 for MAX14840EASA+.
+			>> PA12 for RE/DE (receiver output enable).
+			>> TIM16 for MB port.
 			
 */
 	
 /* Includes ------------------------------------------------------------------*/
 #include "BOS.h"
+#include "Mb.h"
 
 
 /* Define UART variables */
@@ -27,16 +28,42 @@ UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart6;
 
+/* Module exported parameters ------------------------------------------------*/
+int MB_Param = 0;
+module_param_t modParam[NUM_MODULE_PARAMS] = {{.paramPtr=&MB_Param, .paramFormat=FMT_FLOAT, .paramName="MB_Param"}};
 
 /* Private variables ---------------------------------------------------------*/
+#define Bridge       0
+#define RTU          1
+#define ASCII        2
 
+uint8_t H1DR1_Mode;
+TaskHandle_t ModbusRTUTaskHandle = NULL;
 
 /* Private function prototypes -----------------------------------------------*/	
-
+void ModbusRTUTask(void * argument);    //const
 
 /* Create CLI commands --------------------------------------------------------*/
+static portBASE_TYPE demoCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
+static portBASE_TYPE modeCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
 
-
+/* CLI command structure : demo */
+const CLI_Command_Definition_t demoCommandDefinition =
+{
+	( const int8_t * ) "demo", /* The command string to type. */
+	( const int8_t * ) "demo:\r\n Demo bidirectional RS485 communication. Requires two modules\r\n\r\n",
+	demoCommand, /* The function to run. */
+	0 /* no parameter is expected. */
+};
+/*-----------------------------------------------------------*/
+/* CLI command structure : sample */
+const CLI_Command_Definition_t modeCommandDefinition =
+{
+  ( const int8_t * ) "mode", /* The command string to type. */
+  ( const int8_t * ) "mode:\r\n Setup RS485 port in the required mode\r\n\r\n",
+  modeCommand, /* The function to run. */
+  -1 /* Multiparameters are expected. */
+};
 
 
 /* -----------------------------------------------------------------------
@@ -49,30 +76,44 @@ UART_HandleTypeDef huart6;
 void Module_Init(void)
 {
 	/* Array ports */
-  MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
+	MX_USART4_UART_Init();
   MX_USART5_UART_Init();
   MX_USART6_UART_Init();
 	
 	/* RS485 port */
-  MX_USART4_UART_Init();
 	RS485_DE_RE_Init();
-	RS485_RECEIVER_EN();
-	//RS485_DRIVER_EN();
-	
+	eMBErrorCode eStatus = eMBInit( MB_RTU, 0x09, 1, 9600, MB_PAR_NONE );
+  eStatus = eMBEnable();
+
+	xTaskCreate(ModbusRTUTask, (const char*) "ModbusRTUTask", (2*configMINIMAL_STACK_SIZE), NULL, osPriorityNormal-osPriorityIdle, &ModbusRTUTaskHandle);
+
 }
 /*-----------------------------------------------------------*/
 
 /* --- H1DR1 message processing task. 
 */
-Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uint8_t dst)
+Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uint8_t dst, uint8_t shift)
 {
 	Module_Status result = H1DR1_OK;
 	
 	switch (code)
 	{
 
+		case (CODE_H1DR1_MODE): 
+			switch(cMessage[port-1][4])
+			{
+				case (Bridge):
+					
+				case (RTU):
+					H1DR1_Mode=MB_RTU;
+				case (ASCII):
+					H1DR1_Mode=MB_ASCII;
+				default :
+					break;
+				
+			}
 		default:
 			result = H1DR1_ERR_UnknownMessage;
 			break;
@@ -87,7 +128,9 @@ Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uin
 */
 void RegisterModuleCLICommands(void)
 {
-
+	FreeRTOS_CLIRegisterCommand( &demoCommandDefinition );
+	FreeRTOS_CLIRegisterCommand( &modeCommandDefinition );
+	
 }
 
 /*-----------------------------------------------------------*/
@@ -113,12 +156,40 @@ uint8_t GetPort(UART_HandleTypeDef *huart)
 }
 
 
+
+	//osThreadDef(ModbusRTUTask, ModbusRTUTask, osPriorityNormal, 1, configMINIMAL_STACK_SIZE);
+  //ModbusRTUTaskHandle = osThreadCreate(osThread(ModbusRTUTask), NULL);
+
+
 /* -----------------------------------------------------------------------
 	|																APIs	 																 	|
    ----------------------------------------------------------------------- 
 */
 
+/* --- setup RS485 port as bridge
+*/
+void SetupBridgeMode(void)
+{
+	
+}
 
+/*-----------------------------------------------------------*/
+
+/* --- setup the Modbus mode as RTU
+*/
+void SetupModbusRTU(void)
+{
+	
+}
+
+/*-----------------------------------------------------------*/
+
+/* --- setup the Modbus mode as ASCII
+*/
+void SetupModbusASCII(void)
+{
+	
+}
 
 /*-----------------------------------------------------------*/
 
@@ -126,6 +197,90 @@ uint8_t GetPort(UART_HandleTypeDef *huart)
 	|															Commands																 	|
    ----------------------------------------------------------------------- 
 */
+portBASE_TYPE demoCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString )
+{
+	static const int8_t *pcMessage = ( int8_t * ) "Bidirectional RS485 Modbus communication\r\n";
+	static const int8_t *pcMessageError = ( int8_t * ) "Wrong parameter\r\n";
+	Module_Status result = H1DR1_OK;
+	
+	/* Remove compile time warnings about unused parameters, and check the
+	write buffer is not NULL.  NOTE - for simplicity, this example assumes the
+	write buffer length is adequate, so does not check for buffer overflows. */
+	( void ) pcCommandString;
+	( void ) xWriteBufferLen;
+	configASSERT( pcWriteBuffer );
+	
+	/* Respond to the command */
+			strcpy(( char * ) pcWriteBuffer, ( char * ) pcMessage);
+		
+		//
+		/* Wait till the end of stream */
+		//while(startMeasurementRanging != STOP_MEASUREMENT_RANGING){};
+	
+	if (result != H1DR1_OK){
+		strcpy(( char * ) pcWriteBuffer, ( char * ) pcMessageError);
+	}
+
+	/* clean terminal output */
+	memset((char *) pcWriteBuffer, 0, strlen((char *)pcWriteBuffer));
+			
+	/* There is no more data to return after this single string, so return
+	pdFALSE. */
+	return pdFALSE;
+}
+
+/*-----------------------------------------------------------*/
+
+static portBASE_TYPE modeCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString )
+{
+	Module_Status result = H1DR1_OK;
+  int8_t *pcParameterString1;
+	int8_t *pcParameterString2;
+  portBASE_TYPE xParameterStringLength1 = 0;
+	portBASE_TYPE xParameterStringLength2 = 0;
+  static const int8_t *pcMessage = ( int8_t * ) "Setup RS485 port mode!\r\n";
+	static const int8_t *pcMessageWrongParam = ( int8_t * ) "Wrong parameter!\r\n";
+
+  /* Remove compile time warnings about unused parameters, and check the
+  write buffer is not NULL.  NOTE - for simplicity, this example assumes the
+  write buffer length is adequate, so does not check for buffer overflows. */
+  ( void ) xWriteBufferLen;
+  configASSERT( pcWriteBuffer );
+
+  /* 1st parameter for RS485 port mode */
+  pcParameterString1 = ( int8_t * ) FreeRTOS_CLIGetParameter (pcCommandString, 1, &xParameterStringLength1);
+	/* 2nd parameter for RS485 Modbus mode */
+  pcParameterString2 = ( int8_t * ) FreeRTOS_CLIGetParameter (pcCommandString, 2, &xParameterStringLength2);
+	
+	/* Respond to the command */
+	if (NULL == pcParameterString2 && !strncmp((const char *)pcParameterString1, "bridge", 6)) 
+	{
+		H1DR1_Mode=Bridge;
+	}
+	else if (NULL != pcParameterString2 && !strncmp((const char *)pcParameterString1, "mode", 4))
+	{
+		if (!strncmp((const char *)pcParameterString1, "rtu", 3))
+		{
+			H1DR1_Mode=RTU;
+		}
+		else if (!strncmp((const char *)pcParameterString1, "ascii", 5))
+		{
+			H1DR1_Mode=ASCII;
+		}
+		else result=H1DR1_ERR_WrongParams;
+	}
+	else result=H1DR1_ERR_WrongParams;
+	
+	
+  if (H1DR1_ERR_WrongParams == result)
+  {
+    strcpy( ( char * ) pcWriteBuffer, ( char * ) pcMessageWrongParam );
+  }
+	// execute the the calibation API
+	strcpy(( char * ) pcWriteBuffer, ( char * ) pcMessage);
+
+	return H1DR1_OK;	
+}
 
 
 

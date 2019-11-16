@@ -32,13 +32,13 @@
   */
 	
 /*
-		MODIFIED by Hexabitz for BitzOS (BOS) V0.1.5 - Copyright (C) 2017-2018 Hexabitz
+		MODIFIED by Hexabitz for BitzOS (BOS) V0.2.0 - Copyright (C) 2017-2019 Hexabitz
     All rights reserved
 */
 
 /* Includes ------------------------------------------------------------------*/
 #include "BOS.h"
-
+#include "Mb.h"
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -86,15 +86,30 @@ int main(void)
 
 /*-----------------------------------------------------------*/
 
-/* FrontEndTask function */
-void FrontEndTask(void * argument)
+/* User Task */
+void UserTask(void * argument)
 {
-	StartScastDMAStream(P4, 0, P_RS485, 0, BIDIRECTIONAL, 0xFFFFFFFF, 0xFFFFFFFF, false);
+
 	
+	//eMBInit(MB_RTU, 0x0A, 1, 38400, MB_PAR_EVEN);
+		//assert( eStatus == MB_ENOERR );
+	/* Configure the slave id of the device. */
+    //eMBSetSlaveID( 44, TRUE, v, 3 );
+   // assert( eStatus == MB_ENOERR );
+
+    /* Enable the Modbus Protocol Stack. */
+    //eMBEnable();
+	
+	//HAL_GPIO_WritePin(GPIOA, 12,1);
   /* Infinite loop */
   for(;;)
   {
 
+        //( void )eMBPoll(  );
+
+        /* Here we simply count the number of poll cycles. */
+        //usRegInputBuf[0]++;
+		
 	}
 }
 

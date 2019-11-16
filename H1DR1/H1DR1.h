@@ -1,5 +1,5 @@
 /*
-    BitzOS (BOS) V0.1.5 - Copyright (C) 2017-2018 Hexabitz
+    BitzOS (BOS) V0.2.0 - Copyright (C) 2017-2019 Hexabitz
     All rights reserved
 		
     File Name     : H1DR1.h
@@ -13,6 +13,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "BOS.h"
+#include "H1DR1_MemoryMap.h"	
 #include "H1DR1_uart.h"	
 #include "H1DR1_gpio.h"	
 #include "H1DR1_dma.h"	
@@ -43,12 +44,12 @@
 #define _Usart6	1
 
 /* Port-UART mapping */
-#define P1uart 			&huart5
+#define P1uart 			&huart4
 #define P2uart 			&huart2	
 #define P3uart 			&huart6
 #define P4uart 			&huart3
-#define P5uart 			&huart1	
-#define P6uart 			&huart4	
+#define P5uart 			&huart5	
+#define P6uart 			&huart1	
 #define P_RS485uart 		P6uart
 
 /* Port Definitions */
@@ -92,27 +93,31 @@
 #ifdef H1DR1
 	#define _P_RS485 		_P6
 	#define P_RS485 		P6
-	#define	RS485_RE_PIN		GPIO_PIN_7
-	#define	RS485_DE_PIN		GPIO_PIN_0
-	#define	RS485_RE_PORT		GPIOA
-	#define	RS485_DE_PORT		GPIOB
+	#define	RS485_RE_DE_PIN		GPIO_PIN_12
+	//#define	RS485_DE_PIN		GPIO_PIN_0
+	#define	RS485_RE_DE_PORT		GPIOA
+	//#define	RS485_DE_PORT		GPIOB
 	// \RE = 1, DE = 0 Low power shutdown mode
-	#define	RS485_SHUTDOWN()		HAL_GPIO_WritePin(RS485_RE_PORT, RS485_RE_PIN, GPIO_PIN_SET); HAL_GPIO_WritePin(RS485_DE_PORT, RS485_DE_PIN, GPIO_PIN_RESET)
-	// \RE = 0 Enable receiver output
-	#define	RS485_RECEIVER_EN()		HAL_GPIO_WritePin(RS485_RE_PORT, RS485_RE_PIN, GPIO_PIN_RESET)
+	//#define	RS485_SHUTDOWN()		HAL_GPIO_WritePin(RS485_RE_PORT, RS485_RE_PIN, GPIO_PIN_SET); HAL_GPIO_WritePin(RS485_DE_PORT, RS485_DE_PIN, GPIO_PIN_RESET)
+	// \RE_DE = 0 Enable receiver output
+	#define	RS485_RECEIVER_EN()		HAL_GPIO_WritePin(RS485_RE_DE_PORT, RS485_RE_DE_PIN, GPIO_PIN_RESET)
 	// DE = 1 Enable driver output
-	#define	RS485_DRIVER_EN()		HAL_GPIO_WritePin(RS485_DE_PORT, RS485_DE_PIN, GPIO_PIN_SET)
-	// \RE = 1 Disable receiver output
-	#define	RS485_RECEIVER_DIS()		HAL_GPIO_WritePin(RS485_RE_PORT, RS485_RE_PIN, GPIO_PIN_SET)
+	//#define	RS485_DRIVER_EN()		HAL_GPIO_WritePin(RS485_DE_PORT, RS485_DE_PIN, GPIO_PIN_SET)
+	// \RE_DE = 1 Disable receiver output
+	#define	RS485_RECEIVER_DIS()		HAL_GPIO_WritePin(RS485_RE_DE_PORT, RS485_RE_DE_PIN, GPIO_PIN_SET)
 	// DE = 0 Disable driver output
-	#define	RS485_DRIVER_DIS()		HAL_GPIO_WritePin(RS485_DE_PORT, RS485_DE_PIN, GPIO_PIN_RESET)
+	//#define	RS485_DRIVER_DIS()		HAL_GPIO_WritePin(RS485_DE_PORT, RS485_DE_PIN, GPIO_PIN_RESET)
 #endif
+
+/* Module_Status Type Definition */
+#define NUM_MODULE_PARAMS		1
 
 /* H01R0_Status Type Definition */  
 typedef enum 
 {
   H1DR1_OK = 0,
 	H1DR1_ERR_UnknownMessage = 1,
+	H1DR1_ERR_WrongParams,
 	H1DR1_ERROR = 255
 } Module_Status;
 
@@ -130,6 +135,7 @@ extern UART_HandleTypeDef huart5;
 extern UART_HandleTypeDef huart6;
 
 /* Define UART Init prototypes */
+extern void MB_PORT_Init(void);
 extern void MX_USART1_UART_Init(void);
 extern void MX_USART2_UART_Init(void);
 extern void MX_USART3_UART_Init(void);
@@ -143,6 +149,7 @@ extern void MX_USART6_UART_Init(void);
 	|														Message Codes	 														 	|
    ----------------------------------------------------------------------- 
 */
+#define CODE_H1DR1_MODE            2900
 
 
 
@@ -151,7 +158,9 @@ extern void MX_USART6_UART_Init(void);
 	|																APIs	 																 	|
    ----------------------------------------------------------------------- 
 */
-
+void SetupBridgeMode(void);
+void SetupModbusRTU(void);
+void SetupModbusASCII(void);
 
 
 /* -----------------------------------------------------------------------

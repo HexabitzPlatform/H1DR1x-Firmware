@@ -312,7 +312,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
+            <Optim>2</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F091xB,H1DR1,_module=1</Define>
               <Undefine></Undefine>
-              <IncludePath>..\User;..\H1DR1;..\BOS;..\Thirdparty\Middleware\FreeRTOS\Source\CMSIS_RTOS;..\Thirdparty\Middleware\FreeRTOS\Source\include;..\Thirdparty\Middleware\FreeRTOS\Source\portable\RVDS\ARM_CM0;..\Thirdparty\STM32F0xx_HAL_Driver\Inc\Legacy;..\Thirdparty\STM32F0xx_HAL_Driver\Inc;..\Thirdparty\CMSIS\Device\ST\STM32F0xx\Include;..\Thirdparty\CMSIS\Include</IncludePath>
+              <IncludePath>..\User;..\H1DR1;..\BOS;..\Thirdparty\Middleware\FreeRTOS\Source\CMSIS_RTOS;..\Thirdparty\Middleware\FreeRTOS\Source\include;..\Thirdparty\Middleware\FreeRTOS\Source\portable\RVDS\ARM_CM0;..\Thirdparty\STM32F0xx_HAL_Driver\Inc\Legacy;..\Thirdparty\STM32F0xx_HAL_Driver\Inc;..\Thirdparty\CMSIS\Device\ST\STM32F0xx\Include;..\Thirdparty\CMSIS\Include;..\Thirdparty\Modbus;..\Thirdparty\Modbus\include;..\Thirdparty\Modbus\port;..\Thirdparty\Modbus\rtu;..\Thirdparty\Modbus\ascii</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -482,6 +482,16 @@
               <FileType>1</FileType>
               <FilePath>..\Thirdparty\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_rtc_ex.c</FilePath>
             </File>
+            <File>
+              <FileName>stm32f0xx_hal_crc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Thirdparty\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_crc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f0xx_hal_crc_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Thirdparty\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_crc_ex.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -496,6 +506,11 @@
               <FileName>BOS_CLI.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\BOS\BOS_CLI.c</FilePath>
+            </File>
+            <File>
+              <FileName>BOS_dma.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\BOS\BOS_dma.c</FilePath>
             </File>
             <File>
               <FileName>BOS_eeprom.c</FileName>
@@ -536,6 +551,11 @@
               <FileName>H1DR1_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\H1DR1\H1DR1_it.c</FilePath>
+            </File>
+            <File>
+              <FileName>H1DR1_tmr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\H1DR1\H1DR1_tmr.c</FilePath>
             </File>
             <File>
               <FileName>startup_stm32f091xc.s</FileName>
@@ -596,6 +616,91 @@
               <FileName>cmsis_os.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\thirdparty\Middleware\FreeRTOS\Source\CMSIS_RTOS\cmsis_os.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Modbus</GroupName>
+          <Files>
+            <File>
+              <FileName>mb.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Thirdparty\Modbus\mb.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbfunccoils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Thirdparty\Modbus\functions\mbfunccoils.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbfuncdiag.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Thirdparty\Modbus\functions\mbfuncdiag.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbfuncdisc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Thirdparty\Modbus\functions\mbfuncdisc.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbfuncholding.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Thirdparty\Modbus\functions\mbfuncholding.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbfuncinput.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Thirdparty\Modbus\functions\mbfuncinput.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbfuncother.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Thirdparty\Modbus\functions\mbfuncother.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbutils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Thirdparty\Modbus\functions\mbutils.c</FilePath>
+            </File>
+            <File>
+              <FileName>portevent.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Thirdparty\Modbus\port\portevent.c</FilePath>
+            </File>
+            <File>
+              <FileName>portother.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Thirdparty\Modbus\port\portother.c</FilePath>
+            </File>
+            <File>
+              <FileName>portserial.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Thirdparty\Modbus\port\portserial.c</FilePath>
+            </File>
+            <File>
+              <FileName>porttimer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Thirdparty\Modbus\port\porttimer.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbcrc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Thirdparty\Modbus\rtu\mbcrc.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbascii.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Thirdparty\Modbus\ascii\mbascii.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbrtu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Thirdparty\Modbus\rtu\mbrtu.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbTask.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Thirdparty\Modbus\mbTask.c</FilePath>
             </File>
           </Files>
         </Group>
