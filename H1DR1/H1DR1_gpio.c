@@ -82,8 +82,6 @@ void RS485_DE_RE_Init(void)
 	GPIO_InitStruct.Pin = RS485_RE_DE_PIN;
 	HAL_GPIO_Init(RS485_RE_DE_PORT, &GPIO_InitStruct);
 	
-	GPIO_InitStruct.Pin = RS485_RE_DE_PIN;
-	HAL_GPIO_Init(RS485_RE_DE_PORT, &GPIO_InitStruct);
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

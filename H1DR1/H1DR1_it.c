@@ -244,18 +244,20 @@ void DMA1_Ch4_7_DMA2_Ch3_5_IRQHandler(void)
 */
 void TIM16_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM7_IRQn 0 */
+  /* USER CODE BEGIN TIM16_IRQn 0 */
 	if(__HAL_TIM_GET_FLAG(&htim16, TIM_FLAG_UPDATE) != RESET && __HAL_TIM_GET_IT_SOURCE(&htim16, TIM_IT_UPDATE) !=RESET) {
     __HAL_TIM_CLEAR_IT(&htim16, TIM_IT_UPDATE);
     if (!--downcounter)
+			IND_ON();
       pxMBPortCBTimerExpired();
+			IND_OFF();
   }
 
-  /* USER CODE END TIM7_IRQn 0 */
+  /* USER CODE END TIM16_IRQn 0 */
   HAL_TIM_IRQHandler(&htim16);
-  /* USER CODE BEGIN TIM7_IRQn 1 */
+  /* USER CODE BEGIN TIM16_IRQn 1 */
 
-  /* USER CODE END TIM7_IRQn 1 */
+  /* USER CODE END TIM16_IRQn 1 */
 }
 
 /*-----------------------------------------------------------*/
