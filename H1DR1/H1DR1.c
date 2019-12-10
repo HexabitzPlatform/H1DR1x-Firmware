@@ -106,16 +106,18 @@ Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uin
 	
 	switch (code)
 	{
-
 		case (CODE_H1DR1_MODE): 
-			switch(cMessage[port-1][4])
+			switch(cMessage[port-1][shift])
 			{
-				case (Bridge):
-					
+				case (BRIDGE):
+					H1DR1_Mode = BRIDGE;
+					src_port = cMessage[port-1][1+shift];
+					Br_baud_rate = ( (uint32_t) cMessage[port-1][2+shift] << 24 ) + ( (uint32_t) cMessage[port-1][3+shift] << 16 ) + ( (uint32_t) cMessage[port-1][4+shift] << 8 ) + cMessage[port-1][5+shift];
+					break;
 				case (RTU):
-					H1DR1_Mode=MB_RTU;
+					H1DR1_Mode = RTU; break;
 				case (ASCII):
-					H1DR1_Mode=MB_ASCII;
+					H1DR1_Mode = ASCII; break;
 				default :
 					break;
 				
