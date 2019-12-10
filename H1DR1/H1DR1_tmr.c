@@ -50,7 +50,6 @@ void Error_Handler(void);
 void MX_TIM16_Init(void)
 {
 
-  TIM_ClockConfigTypeDef sClockSourceConfig;
   TIM_MasterConfigTypeDef sMasterConfig;
 	
 	/* Peripheral clock enable */
