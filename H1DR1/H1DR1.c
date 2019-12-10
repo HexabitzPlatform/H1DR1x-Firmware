@@ -298,8 +298,10 @@ static portBASE_TYPE modeCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen,
 	Module_Status result = H1DR1_OK;
   int8_t *pcParameterString1;
 	int8_t *pcParameterString2;
+	int8_t *pcParameterString3;
   portBASE_TYPE xParameterStringLength1 = 0;
 	portBASE_TYPE xParameterStringLength2 = 0;
+	portBASE_TYPE xParameterStringLength3 = 0;
   static const int8_t *pcMessage = ( int8_t * ) "Setup RS485 port mode!\r\n";
 	static const int8_t *pcMessageWrongParam = ( int8_t * ) "Wrong parameter!\r\n";
 
@@ -311,15 +313,20 @@ static portBASE_TYPE modeCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen,
 
   /* 1st parameter for RS485 port mode */
   pcParameterString1 = ( int8_t * ) FreeRTOS_CLIGetParameter (pcCommandString, 1, &xParameterStringLength1);
-	/* 2nd parameter for RS485 Modbus mode */
+	/* 2nd parameter for RS485 Modbus mode or src port in case of BRIDGE mode */
   pcParameterString2 = ( int8_t * ) FreeRTOS_CLIGetParameter (pcCommandString, 2, &xParameterStringLength2);
+	/* 3rd parameter for baud rate in case of BRIDGE mode */
+  pcParameterString3 = ( int8_t * ) FreeRTOS_CLIGetParameter (pcCommandString, 3, &xParameterStringLength3);
 	
 	/* Respond to the command */
-	if (NULL == pcParameterString2 && !strncmp((const char *)pcParameterString1, "bridge", 6)) 
+	if (pcParameterString2[0] == 'p' && !strncmp((const char *)pcParameterString1, "bridge", 6)) 
 	{
-		H1DR1_Mode=Bridge;
+		H1DR1_Mode=BRIDGE;
+		src_port = ( uint8_t ) atol( ( char * ) pcParameterString2+1 );
+		Br_baud_rate = ( uint32_t ) atol( ( char * ) pcParameterString3 );
+		
 	}
-	else if (NULL != pcParameterString2 && !strncmp((const char *)pcParameterString1, "mode", 4))
+	else if (NULL != pcParameterString2 && !strncmp((const char *)pcParameterString1, "mb", 2))
 	{
 		if (!strncmp((const char *)pcParameterString1, "rtu", 3))
 		{
