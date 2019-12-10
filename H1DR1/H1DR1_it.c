@@ -38,12 +38,12 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "BOS.h"
-//#include "H1DR1.h"
+#include "H1DR1.h"
 
 /*USER CODE BEGIN 0 */
-#include "mb.h"
-#include "mbport.h"
-extern uint16_t downcounter;
+//#include "mb.h"
+//#include "mbport.h"
+uint16_t downcounter;
 
 /*USER CODE END 0 */
 
@@ -116,13 +116,13 @@ void USART1_IRQHandler(void)
   uint32_t tmp_it_source = __HAL_UART_GET_IT_SOURCE(&huart1, UART_IT_RXNE);
   
   if((tmp_flag != RESET) && (tmp_it_source != RESET)) {
-    pxMBFrameCBByteReceived();
+    //pxMBFrameCBByteReceived();
     __HAL_UART_CLEAR_PEFLAG(&huart1);    
     return;
   }
   
   if((__HAL_UART_GET_FLAG(&huart1, UART_FLAG_TXE) != RESET) &&(__HAL_UART_GET_IT_SOURCE(&huart1, UART_IT_TXE) != RESET)) {
-    pxMBFrameCBTransmitterEmpty();    
+    //pxMBFrameCBTransmitterEmpty();    
     return ;
   }
 
@@ -247,14 +247,15 @@ void TIM16_IRQHandler(void)
   /* USER CODE BEGIN TIM16_IRQn 0 */
 	if(__HAL_TIM_GET_FLAG(&htim16, TIM_FLAG_UPDATE) != RESET && __HAL_TIM_GET_IT_SOURCE(&htim16, TIM_IT_UPDATE) !=RESET) {
     __HAL_TIM_CLEAR_IT(&htim16, TIM_IT_UPDATE);
-    if (!--downcounter)
-			IND_ON();
-      pxMBPortCBTimerExpired();
-			IND_OFF();
+    //if (!--downcounter)
+		IND_ON();
+    //pxMBPortCBTimerExpired();
+		//prvvTimerISR();
+		IND_OFF();
   }
 
   /* USER CODE END TIM16_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim16);
+
   /* USER CODE BEGIN TIM16_IRQn 1 */
 
   /* USER CODE END TIM16_IRQn 1 */

@@ -21,6 +21,9 @@
 	
 /* Exported definitions -------------------------------------------------------*/
 
+/* Define state enum */
+//enum FunctionState{FALSE, TRUE};
+
 #define	modulePN		_H1DR1
 
 /* Port-related definitions */
@@ -36,7 +39,7 @@
 #define _P6 
 
 /* Define available USARTs */
-#define _Usart1 1
+#define _Usart1 1   // if 0 it will be removed from BOS ports
 #define _Usart2 1
 #define _Usart3 1
 #define _Usart4 1
@@ -135,15 +138,19 @@ extern UART_HandleTypeDef huart5;
 extern UART_HandleTypeDef huart6;
 
 /* Define UART Init prototypes */
-extern void MB_PORT_Init(void);
-extern void MX_USART1_UART_Init(void);
+extern bool MB_PORT_Init(uint16_t BaudRate, uint8_t DataBitsN, uint32_t ParityBit);
+//extern void MX_USART1_UART_Init(void);
 extern void MX_USART2_UART_Init(void);
 extern void MX_USART3_UART_Init(void);
 extern void MX_USART4_UART_Init(void);
 extern void MX_USART5_UART_Init(void);
 extern void MX_USART6_UART_Init(void);
 
+/* Export TIM16 variables */
+extern TIM_HandleTypeDef htim16;
 
+/* Define TIM16 Init prototypes */
+extern void MX_TIM16_Init(void);
 
 /* -----------------------------------------------------------------------
 	|														Message Codes	 														 	|
@@ -158,16 +165,15 @@ extern void MX_USART6_UART_Init(void);
 	|																APIs	 																 	|
    ----------------------------------------------------------------------- 
 */
-void SetupBridgeMode(void);
-void SetupModbusRTU(void);
-void SetupModbusASCII(void);
+void SetupBridgeMode(uint8_t src_port, uint16_t baud_rate);
+Module_Status SetupModbusRTU(void);
+Module_Status SetupModbusASCII(void);
 
 
 /* -----------------------------------------------------------------------
 	|															Commands																 	|
    ----------------------------------------------------------------------- 
 */
-
 
 
 
