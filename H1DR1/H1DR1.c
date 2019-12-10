@@ -33,15 +33,18 @@ int MB_Param = 0;
 module_param_t modParam[NUM_MODULE_PARAMS] = {{.paramPtr=&MB_Param, .paramFormat=FMT_FLOAT, .paramName="MB_Param"}};
 
 /* Private variables ---------------------------------------------------------*/
-#define Bridge       0
-#define RTU          1
-#define ASCII        2
-
+enum module_mode{IDLE = 0x00, BRIDGE, RTU, ASCII};
 uint8_t H1DR1_Mode;
+uint8_t src_port;
+uint32_t Br_baud_rate;
+
+TaskHandle_t H1DR1ModeHandle = NULL;
 TaskHandle_t ModbusRTUTaskHandle = NULL;
 
 /* Private function prototypes -----------------------------------------------*/	
-void ModbusRTUTask(void * argument);    //const
+void ModbusRTUTask(void * argument);    
+void H1DR1ModeTask(void * argument); 
+
 
 /* Create CLI commands --------------------------------------------------------*/
 static portBASE_TYPE demoCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
@@ -60,7 +63,7 @@ const CLI_Command_Definition_t demoCommandDefinition =
 const CLI_Command_Definition_t modeCommandDefinition =
 {
   ( const int8_t * ) "mode", /* The command string to type. */
-  ( const int8_t * ) "mode:\r\n Setup RS485 port in the required mode\r\n\r\n",
+  ( const int8_t * ) "mode:\r\n Set RS485 port mode\r\n\r\n",
   modeCommand, /* The function to run. */
   -1 /* Multiparameters are expected. */
 };
@@ -155,11 +158,25 @@ uint8_t GetPort(UART_HandleTypeDef *huart)
 	return 0;
 }
 
-
-
-	//osThreadDef(ModbusRTUTask, ModbusRTUTask, osPriorityNormal, 1, configMINIMAL_STACK_SIZE);
-  //ModbusRTUTaskHandle = osThreadCreate(osThread(ModbusRTUTask), NULL);
-
+/* --- H1DR1 Mode Taak. 
+*/
+void H1DR1ModeTask(void * argument)
+{
+	/*switch (H1DR1_Mode)
+	{
+		case BRIDGE: 
+			SetupBridgeMode(src_port,1); 
+			break;
+		case RTU: 
+			SetupModbusRTU();
+			break;
+		case ASCII: 
+			SetupModbusASCII();
+			break;
+		default: H1DR1_Mode=IDLE; break;
+	
+	}*/
+}
 
 /* -----------------------------------------------------------------------
 	|																APIs	 																 	|
@@ -168,27 +185,67 @@ uint8_t GetPort(UART_HandleTypeDef *huart)
 
 /* --- setup RS485 port as bridge
 */
-void SetupBridgeMode(void)
+void SetupBridgeMode(uint8_t Src_port, uint16_t baud_rate)
 {
+	UART_HandleTypeDef *handle;
+
+	//Disable Mb in case it is running
+	//eMB_Disable();    //USART_CR1_IDLEIE
+		//MX_USART1_UART_Init();  //USART_CR1_TCIE
 	
+	// Reinit the RS485 port to the needed settings 
+	MB_PORT_Init(baud_rate, 1, 0);     // no meanings for values 1, 0 they are just to avoid error syntax
+	// Bridge between the src port and RS485 port
+	Bridge(Src_port, P_RS485);
+	// Set the RS485 to Receiver
+	RS485_RECEIVER_DIS();
+	// check the src port 
+	handle=GetUart(P_RS485);
+	//if ((handle->Instance->ISR & USART_ISR_IDLE) != USART_ISR_IDLE)
+	//{
+	// check if there are data on the line
+	while ((handle->Instance->ISR & USART_ISR_TXE) != USART_ISR_TXE)            //USART_ISR_TXE)
+	{
+		// Set the RS485 to Receiver
+		RS485_RECEIVER_DIS();
+		// Do nothing until receiving stopped
+		taskYIELD();
+	}
+	// check if the transmission is complete
+	if ((handle->Instance->ISR & USART_ISR_TC) !=0)
+	{
+		SET_BIT(handle->Instance->RQR, USART_RQR_RXFRQ);
+		RS485_RECEIVER_EN();
+
+	}
 }
 
 /*-----------------------------------------------------------*/
 
 /* --- setup the Modbus mode as RTU
 */
-void SetupModbusRTU(void)
+Module_Status SetupModbusRTU(void)
 {
+	// Reinit Modbus port
 	
+	// Enable Modbus port to RTU
+	
+	
+	return H1DR1_OK;	
 }
 
 /*-----------------------------------------------------------*/
 
 /* --- setup the Modbus mode as ASCII
 */
-void SetupModbusASCII(void)
+Module_Status SetupModbusASCII(void)
 {
+	// Reinit Modbus port
 	
+	// Enable Modbus port to ASCII
+	
+	
+	return H1DR1_OK;
 }
 
 /*-----------------------------------------------------------*/
