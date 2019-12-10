@@ -33,38 +33,42 @@
   */
 	
 /*
-		MODIFIED by Hexabitz for BitzOS (BOS) V0.1.5 - Copyright (C) 2017-2018 Hexabitz
+		MODIFIED by Hexabitz for BitzOS (BOS) V0.1.7 - Copyright (C) 2017-2019 Hexabitz
     All rights reserved
 */
 
 /* Includes ------------------------------------------------------------------*/
 #include "BOS.h"
 
-
 FlagStatus UartRxReady = RESET;
 FlagStatus UartTxReady = RESET;
 
 
+/* MB Port Initialization */
 /* USART1 init function */
 
-void MX_USART1_UART_Init(void)    
+bool MB_PORT_Init(uint16_t BAUD_RATE, uint8_t DataBitsN, uint32_t PARITY_BIT)   
 {
   huart1.Instance = USART1;
-  huart1.Init.BaudRate = DEF_ARRAY_BAUDRATE;
+  huart1.Init.BaudRate = BAUD_RATE;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
   huart1.Init.StopBits = UART_STOPBITS_1;
-  huart1.Init.Parity = UART_PARITY_NONE;
+  huart1.Init.Parity = PARITY_BIT;
   huart1.Init.Mode = UART_MODE_TX_RX;
   huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart1.Init.OverSampling = UART_OVERSAMPLING_16;
   huart1.Init.OneBitSampling = UART_ONEBIT_SAMPLING_DISABLED;
   huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+	
+	HAL_RS485Ex_Init(&huart1, UART_DE_POLARITY_HIGH, 1, 1);
+	__HAL_UART_ENABLE_IT(&huart1, UART_IT_TC||UART_IT_TXE);
 	HAL_UART_Init(&huart1);
 	#if _P6pol_reversed
 		huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_SWAP_INIT;
 		huart1.AdvancedInit.Swap = UART_ADVFEATURE_SWAP_ENABLE;
 	  HAL_UART_Init(&huart1);
 	#endif	
+return H1DR1_OK;
 }
 
 
@@ -183,11 +187,6 @@ void MX_USART6_UART_Init(void)
 }
 #endif
 
-/*MB Port Initialization */
-void MB_PORT_Init(void)
-{
-	MX_USART1_UART_Init();
-}
 
 void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 {
