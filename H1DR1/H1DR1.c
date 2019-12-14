@@ -114,6 +114,7 @@ Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uin
 					H1DR1_Mode = BRIDGE;
 					src_port = cMessage[port-1][1+shift];
 					Br_baud_rate = ( (uint32_t) cMessage[port-1][2+shift] << 24 ) + ( (uint32_t) cMessage[port-1][3+shift] << 16 ) + ( (uint32_t) cMessage[port-1][4+shift] << 8 ) + cMessage[port-1][5+shift];
+					SetupBridgeMode(src_port,Br_baud_rate);
 					break;
 				case (RTU):
 					H1DR1_Mode = RTU; break;
