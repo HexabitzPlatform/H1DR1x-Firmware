@@ -27,7 +27,7 @@
 #define	modulePN		_H1DR1
 
 /* Port-related definitions */
-#define	NumOfPorts		5
+#define	NumOfPorts		6
 #define P_PROG 				P2						/* ST factory bootloader UART */
 
 /* Define available ports */
