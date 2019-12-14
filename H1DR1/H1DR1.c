@@ -336,9 +336,9 @@ static portBASE_TYPE modeCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen,
 	/* Respond to the command */
 	if (pcParameterString2[0] == 'p' && !strncmp((const char *)pcParameterString1, "bridge", 6)) 
 	{
-		H1DR1_Mode=BRIDGE;
 		src_port = ( uint8_t ) atol( ( char * ) pcParameterString2+1 );
 		Br_baud_rate = ( uint32_t ) atol( ( char * ) pcParameterString3 );
+		SetupBridgeMode(src_port,Br_baud_rate);
 		
 	}
 	else if (NULL != pcParameterString2 && !strncmp((const char *)pcParameterString1, "mb", 2))
