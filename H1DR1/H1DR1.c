@@ -89,11 +89,11 @@ void Module_Init(void)
 	/* RS485 port */
 	MB_PORT_Init(19200, UART_WORDLENGTH_8B, UART_PARITY_NONE);
 	RS485_DE_RE_Init();
-		UpdateBaudrate(P3, 19200);
+	UpdateBaudrate(P3, 19200);
 	//eMBErrorCode eStatus = eMBInit( MB_RTU, 0x09, 1, 9600, MB_PAR_NONE );
   //eStatus = eMBEnable();
 
-	//xTaskCreate(H1DR1ModeTask, (const char*) "H1DR1ModeTask", (2*configMINIMAL_STACK_SIZE), NULL, osPriorityNormal-osPriorityIdle, &H1DR1ModeHandle);
+	xTaskCreate(H1DR1ModeTask, (const char*) "H1DR1ModeTask", (2*configMINIMAL_STACK_SIZE), NULL, osPriorityNormal-osPriorityIdle, &H1DR1ModeHandle);
 	//xTaskCreate(ModbusRTUTask, (const char*) "ModbusRTUTask", (2*configMINIMAL_STACK_SIZE), NULL, osPriorityNormal-osPriorityIdle, &ModbusRTUTaskHandle);
 
 }
@@ -169,10 +169,10 @@ uint8_t GetPort(UART_HandleTypeDef *huart)
 */
 void H1DR1ModeTask(void * argument)
 {
-	/*switch (H1DR1_Mode)
+	switch (H1DR1_Mode)
 	{
 		case BRIDGE: 
-			SetupBridgeMode(src_port,1); 
+			Bridging(); 
 			break;
 		case RTU: 
 			SetupModbusRTU();
@@ -182,7 +182,7 @@ void H1DR1ModeTask(void * argument)
 			break;
 		default: H1DR1_Mode=IDLE; break;
 	
-	}*/
+	}
 }
 
 /* -----------------------------------------------------------------------
