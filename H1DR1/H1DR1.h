@@ -99,17 +99,10 @@
 	#define	RS485_RE_DE_PIN		GPIO_PIN_12
 	//#define	RS485_DE_PIN		GPIO_PIN_0
 	#define	RS485_RE_DE_PORT		GPIOA
-	//#define	RS485_DE_PORT		GPIOB
-	// \RE = 1, DE = 0 Low power shutdown mode
-	//#define	RS485_SHUTDOWN()		HAL_GPIO_WritePin(RS485_RE_PORT, RS485_RE_PIN, GPIO_PIN_SET); HAL_GPIO_WritePin(RS485_DE_PORT, RS485_DE_PIN, GPIO_PIN_RESET)
 	// \RE_DE = 0 Enable receiver output
 	#define	RS485_RECEIVER_EN()		HAL_GPIO_WritePin(RS485_RE_DE_PORT, RS485_RE_DE_PIN, GPIO_PIN_RESET)
-	// DE = 1 Enable driver output
-	//#define	RS485_DRIVER_EN()		HAL_GPIO_WritePin(RS485_DE_PORT, RS485_DE_PIN, GPIO_PIN_SET)
 	// \RE_DE = 1 Disable receiver output
 	#define	RS485_RECEIVER_DIS()		HAL_GPIO_WritePin(RS485_RE_DE_PORT, RS485_RE_DE_PIN, GPIO_PIN_SET)
-	// DE = 0 Disable driver output
-	//#define	RS485_DRIVER_DIS()		HAL_GPIO_WritePin(RS485_DE_PORT, RS485_DE_PIN, GPIO_PIN_RESET)
 #endif
 
 /* Module_Status Type Definition */
@@ -168,6 +161,7 @@ extern void MX_TIM16_Init(void);
 void SetupBridgeMode(uint8_t src_port, uint16_t baud_rate);
 Module_Status SetupModbusRTU(void);
 Module_Status SetupModbusASCII(void);
+Module_Status Bridging(void);
 
 
 /* -----------------------------------------------------------------------
