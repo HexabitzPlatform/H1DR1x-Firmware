@@ -17,7 +17,7 @@
 	
 /* Includes ------------------------------------------------------------------*/
 #include "BOS.h"
-//#include "mb.h"
+#include "mb.h"
 
 
 /* Define UART variables */
@@ -257,7 +257,7 @@ Module_Status Bridging(void)
 	else
 	{
 		// Check if there are data on the line
-		while ((handle_P485->Instance->ISR & USART_ISR_TXE) == USART_ISR_TXE)            //USART_ISR_TXE)
+		while ((handle_P485->Instance->ISR & USART_ISR_TXE) == USART_ISR_TXE)     
 		{
 			// Set the RS485 to transmitter
 			RS485_RECEIVER_DIS();
