@@ -121,6 +121,7 @@ typedef enum
 #define _IND_LED_PORT		GPIOB
 #define _IND_LED_PIN		GPIO_PIN_14
 
+enum module_mode{IDLE = 0x00, BRIDGE, RTU, ASCII};
 
 /* Export UART variables */
 extern UART_HandleTypeDef huart1;

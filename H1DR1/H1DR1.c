@@ -18,6 +18,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "BOS.h"
 #include "mb.h"
+#include "H1DR1.h"
 
 
 /* Define UART variables */
@@ -33,11 +34,9 @@ int MB_Param = 0;
 module_param_t modParam[NUM_MODULE_PARAMS] = {{.paramPtr=&MB_Param, .paramFormat=FMT_FLOAT, .paramName="MB_Param"}};
 
 /* Private variables ---------------------------------------------------------*/
-enum module_mode{IDLE = 0x00, BRIDGE, RTU, ASCII};
 uint8_t H1DR1_Mode;
 uint8_t src_port;
 uint32_t Br_baud_rate;
-UART_HandleTypeDef *handle_P485;
 
 TaskHandle_t H1DR1ModeHandle = NULL;
 TaskHandle_t ModbusRTUTaskHandle = NULL;
@@ -90,6 +89,8 @@ void Module_Init(void)
 	MB_PORT_Init(19200, UART_WORDLENGTH_8B, UART_PARITY_NONE);
 	RS485_DE_RE_Init();
 	UpdateBaudrate(P3, 19200);
+	src_port=P3;
+	SetupBridgeMode(src_port,19200);
 	//eMBErrorCode eStatus = eMBInit( MB_RTU, 0x09, 1, 9600, MB_PAR_NONE );
   //eStatus = eMBEnable();
 
@@ -206,9 +207,7 @@ void SetupBridgeMode(uint8_t Src_port, uint16_t baud_rate)
 	// Bridge between the src port and RS485 port
 	Bridge(Src_port, P_RS485);
 	// Set the RS485 to Receiver
-	RS485_RECEIVER_DIS();
-	// check the src port 
-	handle_P485=GetUart(P_RS485);
+	RS485_RECEIVER_EN();
 
 }
 
@@ -219,7 +218,7 @@ void SetupBridgeMode(uint8_t Src_port, uint16_t baud_rate)
 Module_Status SetupModbusRTU(void)
 {
 	// Reinit Modbus port
-	
+	Unbridge(src_port, P_RS485);
 	// Enable Modbus port to RTU
 	
 	
@@ -233,7 +232,7 @@ Module_Status SetupModbusRTU(void)
 Module_Status SetupModbusASCII(void)
 {
 	// Reinit Modbus port
-	
+	Unbridge(src_port, P_RS485);
 	// Enable Modbus port to ASCII
 	
 	
@@ -247,17 +246,17 @@ Module_Status SetupModbusASCII(void)
 Module_Status Bridging(void)
 {
 	// check if the transmission is complete
-	if ((handle_P485->Instance->ISR & USART_ISR_TC) == USART_ISR_TC)   //!= 0    && (handle->Instance->ISR & USART_ISR_TXE) == USART_ISR_TXE
+	if (((&huart1)->Instance->ISR & USART_ISR_TC) == USART_ISR_TC)   //!= 0    && (handle->Instance->ISR & USART_ISR_TXE) == USART_ISR_TXE
 	{
 		// Enable receiver mode
 		RS485_RECEIVER_EN();
 		// check the src port
-		CLEAR_BIT(handle_P485->Instance->RQR, USART_RQR_RXFRQ);
+		CLEAR_BIT((&huart1)->Instance->RQR, USART_RQR_RXFRQ);
 	}
 	else
 	{
 		// Check if there are data on the line
-		while ((handle_P485->Instance->ISR & USART_ISR_TXE) == USART_ISR_TXE)     
+		while (((&huart1)->Instance->ISR & USART_ISR_TXE) == USART_ISR_TXE)     
 		{
 			// Set the RS485 to transmitter
 			RS485_RECEIVER_DIS();
@@ -268,6 +267,7 @@ Module_Status Bridging(void)
 	
 	return H1DR1_OK;
 }
+	
 /*-----------------------------------------------------------*/
 
 /* -----------------------------------------------------------------------

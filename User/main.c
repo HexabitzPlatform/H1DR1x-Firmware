@@ -45,8 +45,6 @@ uint32_t data;
 char DataToSend;
 Module_Status state;
 //xMBHandle xMBMMaster;
-uint8_t port=3;
-UART_HandleTypeDef *handle;
 
 /* Private function prototypes -----------------------------------------------*/
 
@@ -95,77 +93,13 @@ int main(void)
 void UserTask(void * argument)
 {
 
-//	RS485_RECEIVER_EN();
-//	Bridge(P1, P6);
-	//eMBMSerialInit( &xMBMMaster, MB_RTU, 1, 19200, UART_PARITY_NONE );
 	
-			//MB_PORT_Init(19200, 1, 0);     // no meanings for values 1, 0 they are just to avoid error syntax
-	// Bridge between the src port and RS485 port
-	Bridge(port, P_RS485);
-	//handle=&huart1;
-	//SET_BIT(handle->Instance->CR3, USART_CR3_DEM);
-	RS485_RECEIVER_EN();
 	/* Infinite loop */
 	for(;;)
 	{
-
-	// check the src port 
-		handle=GetUart(P_RS485);
-		//if ((handle->Instance->ISR & USART_ISR_IDLE) != USART_ISR_IDLE)
-		//{
 		
-	//}
 		
-	// check if the transmission is complete
-		//RS485_RECEIVER_EN();
-	if ((handle->Instance->ISR & USART_ISR_TC) == USART_ISR_TC)   //!= 0    && (handle->Instance->ISR & USART_ISR_TXE) == USART_ISR_TXE
-	{
-	
-		RS485_RECEIVER_EN();
-		CLEAR_BIT(handle->Instance->RQR, USART_RQR_RXFRQ);
 		
-	}
-	else
-	{
-		while ((handle->Instance->ISR & USART_ISR_TXE) == USART_ISR_TXE)            //USART_ISR_TXE)
-		{
-			RS485_RECEIVER_DIS();
-			taskYIELD();
-		}
-	}
-/*
-	// Check if the whole data buffer has been transmitted
-  if ((handle->State != HAL_UART_STATE_BUSY))
-  {
-		RS485_RECEIVER_EN();
-		__HAL_UART_DISABLE_IT(&huart1, UART_IT_TC);
-		SET_BIT(handle->Instance->RQR, USART_RQR_RXFRQ);
-  }
-	// data buffer is not empty	
-  else
-  {	
-						while ((handle->Instance->ISR & USART_ISR_TXE) == USART_ISR_TXE)            //USART_ISR_TXE)
-					{
-						RS485_RECEIVER_DIS();
-						taskYIELD();
-					}	
-	//Check if the data to be transmitted correspond to the last byte
-    if(handle->TxXferCount == 0)
-    {
-    //   Disable the UART Transmit Data Register Empty Interrupt 
-      __HAL_UART_DISABLE_IT(handle, UART_IT_TXE);
-
-    //   Enable the UART Transmit Complete Interrupt 
-      __HAL_UART_ENABLE_IT(handle, UART_IT_TC);
-    }
-		// Check if the data to be transmitted correspond to the first byte
-    else   // if (handle->TxXferCount == 0)
-    {
-		
-    }
-  }*/
-	
-			
 	}
 }
 

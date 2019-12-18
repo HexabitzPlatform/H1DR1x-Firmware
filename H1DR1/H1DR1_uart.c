@@ -61,7 +61,6 @@ bool MB_PORT_Init(uint16_t BAUD_RATE, uint8_t DataBitsN, uint32_t PARITY_BIT)
   huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
 	
 	HAL_RS485Ex_Init(&huart1, UART_DE_POLARITY_HIGH, 1, 1);
-	__HAL_UART_ENABLE_IT(&huart1, UART_IT_TC||UART_IT_TXE);
 	HAL_UART_Init(&huart1);
 	#if _P6pol_reversed
 		huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_SWAP_INIT;

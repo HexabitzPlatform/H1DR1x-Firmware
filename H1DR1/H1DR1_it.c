@@ -44,6 +44,9 @@
 //#include "mb.h"
 //#include "mbport.h"
 uint16_t downcounter;
+extern uint8_t H1DR1_Mode;
+extern uint8_t src_port;
+extern uint32_t Br_baud_rate;
 
 /*USER CODE END 0 */
 
@@ -100,7 +103,7 @@ void HardFault_Handler(void)
 void USART1_IRQHandler(void)
 {
 	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
-	
+		
 #if defined (_Usart1)		
   HAL_UART_IRQHandler(&huart1);
 #endif
@@ -112,22 +115,9 @@ void USART1_IRQHandler(void)
 
 	//the alternative code but needs verification
   /* USER CODE BEGIN USART1_IRQn 0 */
-	uint32_t tmp_flag = __HAL_UART_GET_FLAG(&huart1, UART_FLAG_RXNE);
-  uint32_t tmp_it_source = __HAL_UART_GET_IT_SOURCE(&huart1, UART_IT_RXNE);
-  
-  if((tmp_flag != RESET) && (tmp_it_source != RESET)) {
-    //pxMBFrameCBByteReceived();
-    __HAL_UART_CLEAR_PEFLAG(&huart1);    
-    return;
-  }
-  
-  if((__HAL_UART_GET_FLAG(&huart1, UART_FLAG_TXE) != RESET) &&(__HAL_UART_GET_IT_SOURCE(&huart1, UART_IT_TXE) != RESET)) {
-    //pxMBFrameCBTransmitterEmpty();    
-    return ;
-  }
 
   /* USER CODE END USART1_IRQn 0 */
-  HAL_UART_IRQHandler(&huart1);
+
   /* USER CODE BEGIN USART1_IRQn 1 */
 
   /* USER CODE END USART1_IRQn 1 */	
@@ -266,6 +256,7 @@ void TIM16_IRQHandler(void)
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
 	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+	//UART_HandleTypeDef *handle;
 	
 	/* TX DMAs are shared so unsetup them here to be reused */
 	if(huart->hdmatx != NULL)
@@ -273,6 +264,14 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 
 	/* Give back the mutex. */
 	xSemaphoreGiveFromISR( PxTxSemaphoreHandle[GetPort(huart)], &( xHigherPriorityTaskWoken ) );
+	
+	// Check if the huart is P_RS485
+	if (huart == P_RS485uart )
+	{
+		// Enable receiver mode
+		RS485_RECEIVER_EN();
+	}
+	
 }
 
 /*-----------------------------------------------------------*/
@@ -309,7 +308,19 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		memset(&UARTRxBuf[GetPort(huart)-1][0], 0, MSG_RX_BUF_SIZE);
 		// Set a port-specific flag here and let the backend task restart DMA
 		MsgDMAStopped[GetPort(huart)-1] = true;	
+		
 	}
+		// Check if there is data received from bridge port
+			if (H1DR1_Mode==BRIDGE)
+		{
+			if (huart==GetUart(src_port))
+			{
+					// Set the RS485 to transmitter
+					RS485_RECEIVER_DIS();
+					__HAL_UART_ENABLE_IT(&huart1, UART_IT_TC);
+			}
+			
+		}
 }
 
 /*-----------------------------------------------------------*/
