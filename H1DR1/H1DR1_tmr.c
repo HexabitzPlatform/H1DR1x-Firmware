@@ -46,7 +46,7 @@ void Error_Handler(void);
 /* Configure TIM16                                                             */
 /*----------------------------------------------------------------------------*/
 
-/* TIM7 init function */
+/* TIM16 init function */
 void MX_TIM16_Init(void)
 {
 

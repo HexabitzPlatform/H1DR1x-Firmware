@@ -17,7 +17,7 @@
 	
 /* Includes ------------------------------------------------------------------*/
 #include "BOS.h"
-#include "mb.h"
+//#include "mb.h"
 #include "H1DR1.h"
 
 
@@ -79,6 +79,7 @@ const CLI_Command_Definition_t modeCommandDefinition =
 void Module_Init(void)
 {
 	/* Array ports */
+	MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
 	MX_USART4_UART_Init();
@@ -86,7 +87,7 @@ void Module_Init(void)
   MX_USART6_UART_Init();
 	
 	/* RS485 port */
-	MB_PORT_Init(19200, UART_WORDLENGTH_8B, UART_PARITY_NONE);
+	//MB_PORT_Init(19200, UART_WORDLENGTH_8B, UART_PARITY_NONE);
 	RS485_DE_RE_Init();
 	UpdateBaudrate(P3, 19200);
 	src_port=P3;
@@ -112,15 +113,16 @@ Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uin
 			switch(cMessage[port-1][shift])
 			{
 				case (BRIDGE):
-					H1DR1_Mode = BRIDGE;
 					src_port = cMessage[port-1][1+shift];
 					Br_baud_rate = ( (uint32_t) cMessage[port-1][2+shift] << 24 ) + ( (uint32_t) cMessage[port-1][3+shift] << 16 ) + ( (uint32_t) cMessage[port-1][4+shift] << 8 ) + cMessage[port-1][5+shift];
 					SetupBridgeMode(src_port,Br_baud_rate);
 					break;
 				case (RTU):
-					H1DR1_Mode = RTU; break;
+					SetupModbusRTU();
+					break;
 				case (ASCII):
-					H1DR1_Mode = ASCII; break;
+					SetupModbusASCII();
+					break;
 				default :
 					break;
 				

@@ -307,9 +307,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		// Clear the circular RX buffer
 		memset(&UARTRxBuf[GetPort(huart)-1][0], 0, MSG_RX_BUF_SIZE);
 		// Set a port-specific flag here and let the backend task restart DMA
-		MsgDMAStopped[GetPort(huart)-1] = true;	
-		
+		MsgDMAStopped[GetPort(huart)-1] = true;		
 	}
+	
 		// Check if there is data received from bridge port
 			if (H1DR1_Mode==BRIDGE)
 		{

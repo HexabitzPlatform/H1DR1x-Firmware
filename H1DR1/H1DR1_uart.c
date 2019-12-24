@@ -45,9 +45,7 @@ FlagStatus UartTxReady = RESET;
 
 
 /* MB Port Initialization */
-/* USART1 init function */
-
-bool MB_PORT_Init(uint16_t BAUD_RATE, uint8_t DataBitsN, uint32_t PARITY_BIT)   
+Module_Status MB_PORT_Init(uint16_t BAUD_RATE, uint8_t DataBitsN, uint32_t PARITY_BIT)   
 {
   huart1.Instance = USART1;
   huart1.Init.BaudRate = BAUD_RATE;
@@ -60,7 +58,7 @@ bool MB_PORT_Init(uint16_t BAUD_RATE, uint8_t DataBitsN, uint32_t PARITY_BIT)
   huart1.Init.OneBitSampling = UART_ONEBIT_SAMPLING_DISABLED;
   huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
 	
-	HAL_RS485Ex_Init(&huart1, UART_DE_POLARITY_HIGH, 1, 1);
+	//HAL_RS485Ex_Init(&huart1, UART_DE_POLARITY_HIGH, 1, 1);
 	HAL_UART_Init(&huart1);
 	#if _P6pol_reversed
 		huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_SWAP_INIT;
@@ -70,6 +68,13 @@ bool MB_PORT_Init(uint16_t BAUD_RATE, uint8_t DataBitsN, uint32_t PARITY_BIT)
 return H1DR1_OK;
 }
 
+/* USART1 init function */
+#ifdef _Usart1
+void MX_USART1_UART_Init(void)
+{
+	MB_PORT_Init(19200, UART_WORDLENGTH_8B, UART_PARITY_NONE);
+}
+#endif
 
 /* USART2 init function */
 #ifdef _Usart2

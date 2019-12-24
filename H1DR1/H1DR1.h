@@ -132,19 +132,19 @@ extern UART_HandleTypeDef huart5;
 extern UART_HandleTypeDef huart6;
 
 /* Define UART Init prototypes */
-extern bool MB_PORT_Init(uint16_t BaudRate, uint8_t DataBitsN, uint32_t ParityBit);
-//extern void MX_USART1_UART_Init(void);
-extern void MX_USART2_UART_Init(void);
-extern void MX_USART3_UART_Init(void);
-extern void MX_USART4_UART_Init(void);
-extern void MX_USART5_UART_Init(void);
-extern void MX_USART6_UART_Init(void);
+Module_Status MB_PORT_Init(uint16_t BaudRate, uint8_t DataBitsN, uint32_t ParityBit);
+void MX_USART1_UART_Init(void);
+void MX_USART2_UART_Init(void);
+void MX_USART3_UART_Init(void);
+void MX_USART4_UART_Init(void);
+void MX_USART5_UART_Init(void);
+void MX_USART6_UART_Init(void);
 
 /* Export TIM16 variables */
 extern TIM_HandleTypeDef htim16;
 
 /* Define TIM16 Init prototypes */
-extern void MX_TIM16_Init(void);
+void MX_TIM16_Init(void);
 
 /* -----------------------------------------------------------------------
 	|														Message Codes	 														 	|
