@@ -41,12 +41,14 @@
 #include "H1DR1.h"
 
 /*USER CODE BEGIN 0 */
-//#include "mb.h"
-//#include "mbport.h"
+#include "mbm.h"
+#include "mbport.h"
 uint16_t downcounter;
 extern uint8_t H1DR1_Mode;
 extern uint8_t src_port;
 extern uint32_t Br_baud_rate;
+TIM_HandleTypeDef htim16;
+extern UART_HandleTypeDef huart1;
 
 /*USER CODE END 0 */
 
@@ -56,10 +58,9 @@ extern uint8_t UARTRxBuf[NumOfPorts][MSG_RX_BUF_SIZE];
 //extern uint8_t UARTTxBuf[3][MSG_TX_BUF_SIZE];
 
 /* External function prototypes ----------------------------------------------*/
-TIM_HandleTypeDef htim16;
-extern UART_HandleTypeDef huart1;
-
-
+extern void prvvTimerISR( void );
+extern void prrvUSARTTxISR( void );
+extern void prrvUSARTRxISR( void );
 extern TaskHandle_t xCommandConsoleTaskHandle;
 extern void NotifyMessagingTaskFromISR(uint8_t port);
 
@@ -234,21 +235,27 @@ void DMA1_Ch4_7_DMA2_Ch3_5_IRQHandler(void)
 */
 void TIM16_IRQHandler(void)
 {
+	HAL_TIM_IRQHandler(&htim16);
+	
   /* USER CODE BEGIN TIM16_IRQn 0 */
-	if(__HAL_TIM_GET_FLAG(&htim16, TIM_FLAG_UPDATE) != RESET && __HAL_TIM_GET_IT_SOURCE(&htim16, TIM_IT_UPDATE) !=RESET) {
-    __HAL_TIM_CLEAR_IT(&htim16, TIM_IT_UPDATE);
-    //if (!--downcounter)
-		IND_ON();
-    //pxMBPortCBTimerExpired();
-		//prvvTimerISR();
-		IND_OFF();
-  }
 
   /* USER CODE END TIM16_IRQn 0 */
 
   /* USER CODE BEGIN TIM16_IRQn 1 */
 
   /* USER CODE END TIM16_IRQn 1 */
+}
+
+/*-----------------------------------------------------------*/
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if (htim == &htim16 )
+		{
+			// Call Modbus protocol timer ISR API
+			prvvTimerISR();
+		}
+
 }
 
 /*-----------------------------------------------------------*/
@@ -272,6 +279,15 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 		RS485_RECEIVER_EN();
 	}
 	
+	// Check the TX interrupt of Modbus protocol
+		if (H1DR1_Mode==RTU || H1DR1_Mode==ASCII)
+		{
+			if (huart == P_RS485uart )
+			{
+					// Call Modbus protocol port ISR API
+					prrvUSARTTxISR();
+			}
+		}
 }
 
 /*-----------------------------------------------------------*/
@@ -315,11 +331,20 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		{
 			if (huart==GetUart(src_port))
 			{
-					// Set the RS485 to transmitter
+					// Set RS485 port to transmitter
 					RS485_RECEIVER_DIS();
 					__HAL_UART_ENABLE_IT(&huart1, UART_IT_TC);
 			}
-			
+		}
+		
+		// Check the RX interrupt of Modbus protocol
+		if (H1DR1_Mode==RTU || H1DR1_Mode==ASCII)
+		{
+			if (huart==&huart1)
+			{
+				// Call Modbus protocol port ISR API
+				prrvUSARTRxISR();
+			}
 		}
 }
 
