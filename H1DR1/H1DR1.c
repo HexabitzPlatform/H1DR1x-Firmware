@@ -96,7 +96,7 @@ void Module_Init(void)
   //eStatus = eMBEnable();
 
 	xTaskCreate(H1DR1ModeTask, (const char*) "H1DR1ModeTask", (2*configMINIMAL_STACK_SIZE), NULL, osPriorityNormal-osPriorityIdle, &H1DR1ModeHandle);
-	//xTaskCreate(ModbusRTUTask, (const char*) "ModbusRTUTask", (2*configMINIMAL_STACK_SIZE), NULL, osPriorityNormal-osPriorityIdle, &ModbusRTUTaskHandle);
+	xTaskCreate(ModbusRTUTask, (const char*) "ModbusRTUTask", (2*configMINIMAL_STACK_SIZE), NULL, osPriorityNormal-osPriorityIdle, &ModbusRTUTaskHandle);
 
 }
 /*-----------------------------------------------------------*/
@@ -172,19 +172,31 @@ uint8_t GetPort(UART_HandleTypeDef *huart)
 */
 void H1DR1ModeTask(void * argument)
 {
-	switch (H1DR1_Mode)
+	for(;;)
 	{
-		case BRIDGE: 
-			Bridging(); 
-			break;
-		case RTU: 
-			SetupModbusRTU();
-			break;
-		case ASCII: 
-			SetupModbusASCII();
-			break;
-		default: H1DR1_Mode=IDLE; break;
-	
+		switch (H1DR1_Mode)
+		{
+			case BRIDGE: 
+				//Bridging(); 
+				break;
+			case RTU: 
+				SetupModbusRTU();
+				break;
+			case ASCII: 
+				SetupModbusASCII();
+				break;
+			default: H1DR1_Mode=IDLE; break;
+		
+		}
+		taskYIELD();
+	}
+}
+
+void ModbusRTUTask(void * argument)
+{
+	for(;;)
+	{
+		taskYIELD();
 	}
 }
 
