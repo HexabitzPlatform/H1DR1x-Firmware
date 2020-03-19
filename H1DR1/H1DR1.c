@@ -87,13 +87,11 @@ void Module_Init(void)
   MX_USART6_UART_Init();
 	
 	/* RS485 port */
-	//MB_PORT_Init(19200, UART_WORDLENGTH_8B, UART_PARITY_NONE);
+	//MB_PORT_Init(19200, UART_WORDLENGTH_8B, UART_PARITY_NONE, UART_STOPBITS_1);
 	RS485_DE_RE_Init();
-	UpdateBaudrate(P3, 19200);
+	/*UpdateBaudrate(P3, 19200);
 	src_port=P3;
-	SetupBridgeMode(src_port,19200);
-	//eMBErrorCode eStatus = eMBInit( MB_RTU, 0x09, 1, 9600, MB_PAR_NONE );
-  //eStatus = eMBEnable();
+	SetupBridgeMode(src_port,19200);*/
 
 	xTaskCreate(H1DR1ModeTask, (const char*) "H1DR1ModeTask", (2*configMINIMAL_STACK_SIZE), NULL, osPriorityNormal-osPriorityIdle, &H1DR1ModeHandle);
 	xTaskCreate(ModbusRTUTask, (const char*) "ModbusRTUTask", (2*configMINIMAL_STACK_SIZE), NULL, osPriorityNormal-osPriorityIdle, &ModbusRTUTaskHandle);

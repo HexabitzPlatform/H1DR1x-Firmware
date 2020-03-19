@@ -45,12 +45,12 @@ FlagStatus UartTxReady = RESET;
 
 
 /* MB Port Initialization */
-Module_Status MB_PORT_Init(uint16_t BAUD_RATE, uint8_t DataBitsN, uint32_t PARITY_BIT)   
+Module_Status MB_PORT_Init(uint16_t BAUD_RATE, uint8_t DataBitsN, uint32_t PARITY_BIT, uint32_t STOP_BIT)   
 {
   huart1.Instance = USART1;
   huart1.Init.BaudRate = BAUD_RATE;
-  huart1.Init.WordLength = UART_WORDLENGTH_8B;
-  huart1.Init.StopBits = UART_STOPBITS_1;
+  huart1.Init.WordLength = DataBitsN;
+  huart1.Init.StopBits = STOP_BIT;
   huart1.Init.Parity = PARITY_BIT;
   huart1.Init.Mode = UART_MODE_TX_RX;
   huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
@@ -72,7 +72,7 @@ return H1DR1_OK;
 #ifdef _Usart1
 void MX_USART1_UART_Init(void)
 {
-	MB_PORT_Init(19200, UART_WORDLENGTH_8B, UART_PARITY_NONE);
+	MB_PORT_Init(19200, UART_WORDLENGTH_8B, UART_PARITY_NONE, UART_STOPBITS_1);
 }
 #endif
 

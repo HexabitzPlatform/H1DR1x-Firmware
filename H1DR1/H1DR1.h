@@ -122,6 +122,9 @@ typedef enum
 #define _IND_LED_PIN		GPIO_PIN_14
 
 enum module_mode{IDLE = 0x00, BRIDGE, RTU, ASCII};
+enum MB_Parity{MB_PARITY_N, MB_PARITY_O, MB_PARITY_E};
+enum MB_DataBits{MB_DATABITS_7, MB_DATABITS_8, MB_DATABITS_9};
+enum MB_StopBit{MB_STOPBIT_1 = 0x01, MB_STOPBIT_2};
 
 /* Export UART variables */
 extern UART_HandleTypeDef huart1;
@@ -132,7 +135,7 @@ extern UART_HandleTypeDef huart5;
 extern UART_HandleTypeDef huart6;
 
 /* Define UART Init prototypes */
-Module_Status MB_PORT_Init(uint16_t BaudRate, uint8_t DataBitsN, uint32_t ParityBit);
+Module_Status MB_PORT_Init(uint16_t BaudRate, uint8_t DataBitsN, uint32_t ParityBit, uint32_t StopBitN);
 extern void MX_USART1_UART_Init(void);
 extern void MX_USART2_UART_Init(void);
 extern void MX_USART3_UART_Init(void);
