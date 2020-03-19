@@ -279,15 +279,15 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 		RS485_RECEIVER_EN();
 	}
 	
-	// Check the TX interrupt of Modbus protocol
-		if (H1DR1_Mode==RTU || H1DR1_Mode==ASCII)
+	// Check the Tx interrupt of Modbus protocol
+	if (H1DR1_Mode==RTU || H1DR1_Mode==ASCII)
+	{
+		if (huart == P_RS485uart )
 		{
-			if (huart == P_RS485uart )
-			{
-					// Call Modbus protocol port ISR API
-					prrvUSARTTxISR();
-			}
+				// Call Modbus protocol port ISR API
+				prrvUSARTTxISR();
 		}
+	}
 }
 
 /*-----------------------------------------------------------*/
