@@ -162,9 +162,9 @@ void MX_TIM16_Init(void);
 	|																APIs	 																 	|
    ----------------------------------------------------------------------- 
 */
-void SetupBridgeMode(uint8_t src_port, uint16_t baud_rate);
-Module_Status SetupModbusRTU(void);
-Module_Status SetupModbusASCII(void);
+void SetupBridgeMode(uint8_t src_port, uint32_t baud_rate);
+Module_Status SetupModbusRTU(uint32_t BaudRate, uint32_t ParityBit);
+Module_Status SetupModbusASCII(uint32_t BaudRate, uint32_t ParityBit);
 Module_Status Bridging(void);
 
 

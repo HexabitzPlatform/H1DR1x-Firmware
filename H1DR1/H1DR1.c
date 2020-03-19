@@ -16,9 +16,8 @@
 */
 	
 /* Includes ------------------------------------------------------------------*/
-#include "BOS.h"
-//#include "mb.h"
 #include "H1DR1.h"
+#include "mbm.h"
 
 
 /* Define UART variables */
@@ -37,6 +36,7 @@ module_param_t modParam[NUM_MODULE_PARAMS] = {{.paramPtr=&MB_Param, .paramFormat
 uint8_t H1DR1_Mode;
 uint8_t src_port;
 uint32_t Br_baud_rate;
+uint32_t Parity_bit;
 
 TaskHandle_t H1DR1ModeHandle = NULL;
 TaskHandle_t ModbusRTUTaskHandle = NULL;
@@ -116,10 +116,14 @@ Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uin
 					SetupBridgeMode(src_port,Br_baud_rate);
 					break;
 				case (RTU):
-					SetupModbusRTU();
+					Br_baud_rate = ( (uint32_t) cMessage[port-1][1+shift] << 24 ) + ( (uint32_t) cMessage[port-1][2+shift] << 16 ) + ( (uint32_t) cMessage[port-1][3+shift] << 8 ) + cMessage[port-1][4+shift];
+					Parity_bit = ( (uint32_t) cMessage[port-1][5+shift] << 24 ) + ( (uint32_t) cMessage[port-1][6+shift] << 16 ) + ( (uint32_t) cMessage[port-1][7+shift] << 8 ) + cMessage[port-1][8+shift];
+					SetupModbusRTU(Br_baud_rate, Parity_bit);
 					break;
 				case (ASCII):
-					SetupModbusASCII();
+					Br_baud_rate = ( (uint32_t) cMessage[port-1][1+shift] << 24 ) + ( (uint32_t) cMessage[port-1][2+shift] << 16 ) + ( (uint32_t) cMessage[port-1][3+shift] << 8 ) + cMessage[port-1][4+shift];
+					Parity_bit = ( (uint32_t) cMessage[port-1][5+shift] << 24 ) + ( (uint32_t) cMessage[port-1][6+shift] << 16 ) + ( (uint32_t) cMessage[port-1][7+shift] << 8 ) + cMessage[port-1][8+shift];
+					SetupModbusASCII(Br_baud_rate, Parity_bit);
 					break;
 				default :
 					break;
@@ -178,10 +182,10 @@ void H1DR1ModeTask(void * argument)
 				//Bridging(); 
 				break;
 			case RTU: 
-				SetupModbusRTU();
+				//SetupModbusRTU();
 				break;
 			case ASCII: 
-				SetupModbusASCII();
+				//SetupModbusASCII();
 				break;
 			default: H1DR1_Mode=IDLE; break;
 		
@@ -205,7 +209,7 @@ void ModbusRTUTask(void * argument)
 
 /* --- setup RS485 port as bridge
 */
-void SetupBridgeMode(uint8_t Src_port, uint16_t baud_rate)
+void SetupBridgeMode(uint8_t Src_port, uint32_t baud_rate)
 {
 	// Disable MB in case it is running
 	//eMB_Disable();  
@@ -213,7 +217,7 @@ void SetupBridgeMode(uint8_t Src_port, uint16_t baud_rate)
 	// Set the mode of the module
 	H1DR1_Mode=BRIDGE;
 	// Reinit the RS485 port to the needed settings 
-	MB_PORT_Init(baud_rate, 1, 0);     // no meanings for values 1, 0 they are just to avoid error syntax
+	MB_PORT_Init(baud_rate, 1, 0, 1);     // no meanings for values 1, 0 they are just to avoid error syntax
 	// Set the baud rate of the src port to baud_rate
 	UpdateBaudrate(Src_port, baud_rate);
 	// Bridge between the src port and RS485 port
@@ -227,13 +231,13 @@ void SetupBridgeMode(uint8_t Src_port, uint16_t baud_rate)
 
 /* --- setup the Modbus mode as RTU
 */
-Module_Status SetupModbusRTU(void)
+Module_Status SetupModbusRTU(uint32_t BaudRate, uint32_t ParityBit)
 {
 	// Reinit Modbus port
 	Unbridge(src_port, P_RS485);
 	// Enable Modbus port to RTU
-	
-	
+	//if (MB_ENOERR != eMBMSerialInit( &xMBMaster, MB_RTU, 0, BaudRate, StopBitN ) ) { return H1DR1_ERROR;}
+	//else 	
 	return H1DR1_OK;	
 }
 
@@ -241,13 +245,13 @@ Module_Status SetupModbusRTU(void)
 
 /* --- setup the Modbus mode as ASCII
 */
-Module_Status SetupModbusASCII(void)
+Module_Status SetupModbusASCII(uint32_t BaudRate, uint32_t ParityBit)
 {
 	// Reinit Modbus port
 	Unbridge(src_port, P_RS485);
 	// Enable Modbus port to ASCII
-	
-	
+	//if (MB_ENOERR != eMBMSerialInit( &xMBMaster, MB_ASCII, 0, BaudRate, ParityBit ) ) { return H1DR1_ERROR;}
+	//else 	
 	return H1DR1_OK;
 }
 
