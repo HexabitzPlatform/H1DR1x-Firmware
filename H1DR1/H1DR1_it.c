@@ -39,11 +39,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "BOS.h"
 #include "H1DR1.h"
+#include "mbm.h"
 
 /*USER CODE BEGIN 0 */
-#include "mbm.h"
-#include "mbport.h"
-uint16_t downcounter;
 extern uint8_t H1DR1_Mode;
 extern uint8_t src_port;
 extern uint32_t Br_baud_rate;
@@ -59,12 +57,10 @@ extern uint8_t UARTRxBuf[NumOfPorts][MSG_RX_BUF_SIZE];
 
 /* External function prototypes ----------------------------------------------*/
 extern void prvvTimerISR( void );
-extern void prrvUSARTTxISR( void );
-extern void prrvUSARTRxISR( void );
+extern void prvvMBPUSART1_TXE_ISR( void );
+extern void prvvMBPUSART1_RXNE_ISR( void );
 extern TaskHandle_t xCommandConsoleTaskHandle;
 extern void NotifyMessagingTaskFromISR(uint8_t port);
-
-
 
 
 /******************************************************************************/
@@ -285,7 +281,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 		if (huart == P_RS485uart )
 		{
 				// Call Modbus protocol port ISR API
-				prrvUSARTTxISR();
+				prvvMBPUSART1_TXE_ISR();
 		}
 	}
 }
@@ -343,7 +339,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			if (huart==&huart1)
 			{
 				// Call Modbus protocol port ISR API
-				prrvUSARTRxISR();
+				prvvMBPUSART1_RXNE_ISR();
 			}
 		}
 }
