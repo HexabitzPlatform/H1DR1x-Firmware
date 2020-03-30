@@ -56,8 +56,10 @@ extern uint8_t UARTRxBuf[NumOfPorts][MSG_RX_BUF_SIZE];
 //extern uint8_t UARTTxBuf[3][MSG_TX_BUF_SIZE];
 
 /* External function prototypes ----------------------------------------------*/
-extern void prvvTimerISR( void );
+extern void vMBPTimerISR( void );
+extern void vMBPUSART1ISR( void );
 extern void prvvMBPUSART1_TXE_ISR( void );
+extern void prvvMBPUSART1_TC_ISR( void );
 extern void prvvMBPUSART1_RXNE_ISR( void );
 extern TaskHandle_t xCommandConsoleTaskHandle;
 extern void NotifyMessagingTaskFromISR(uint8_t port);
@@ -103,6 +105,7 @@ void USART1_IRQHandler(void)
 		
 #if defined (_Usart1)		
   HAL_UART_IRQHandler(&huart1);
+	vMBPUSART1ISR();
 #endif
 	
 	/* If lHigherPriorityTaskWoken is now equal to pdTRUE, then a context
@@ -249,7 +252,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	if (htim == &htim16 )
 		{
 			// Call Modbus protocol timer ISR API
-			prvvTimerISR();
+			vMBPTimerISR();
 		}
 
 }
@@ -281,7 +284,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 		if (huart == P_RS485uart )
 		{
 				// Call Modbus protocol port ISR API
-				prvvMBPUSART1_TXE_ISR();
+				prvvMBPUSART1_TC_ISR();
 		}
 	}
 }
