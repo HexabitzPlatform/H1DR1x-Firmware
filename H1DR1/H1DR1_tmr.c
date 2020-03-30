@@ -49,7 +49,6 @@ void Error_Handler(void);
 /* TIM16 init function */
 void MX_TIM16_Init(void)
 {
-
   TIM_MasterConfigTypeDef sMasterConfig;
 	
 	/* Peripheral clock enable */
@@ -67,6 +66,7 @@ void MX_TIM16_Init(void)
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   HAL_TIMEx_MasterConfigSynchronization(&htim16, &sMasterConfig);
 	
+	HAL_TIM_Base_Start_IT(&htim16);
 }
 
 
