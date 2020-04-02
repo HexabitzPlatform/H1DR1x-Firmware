@@ -208,22 +208,32 @@ void ModbusRTUTask(void * argument)
 
 /* --- setup RS485 port as bridge
 */
-void SetupBridgeMode(uint8_t Src_port, uint32_t baud_rate)
+Module_Status SetupBridgeMode(uint8_t Src_port, uint32_t baud_rate)
 {
 	// Disable MB in case it is running
-	//eMB_Disable();  
-	//MX_USART1_UART_Init(); 
+	if (H1DR1_Mode == BRIDGE) {
+	//eMBMClose();   
+	}
 	// Set the mode of the module
 	H1DR1_Mode=BRIDGE;
 	// Reinit the RS485 port to the needed settings 
-	MB_PORT_Init(baud_rate, 1, 0, 1);     // no meanings for values 1, 0 they are just to avoid error syntax
-	// Set the baud rate of the src port to baud_rate
-	UpdateBaudrate(Src_port, baud_rate);
-	// Bridge between the src port and RS485 port
-	Bridge(Src_port, P_RS485);
-	// Set the RS485 to Receiver
-	RS485_RECEIVER_EN();
-
+	if ( MB_PORT_Init(baud_rate, 1, 0, 1) == H1DR1_OK )
+	{    
+		// Set the baud rate of the src port to baud_rate
+		if ( UpdateBaudrate(Src_port, baud_rate) == BOS_OK )
+		{
+			// Bridge between the src port and RS485 port
+			if ( Bridge(Src_port, P_RS485) == BOS_OK )
+			{
+				// Set the RS485 to Receiver
+				RS485_RECEIVER_EN();
+				return H1DR1_OK;
+			}
+			else return H1DR1_ERROR;
+		}
+		else return H1DR1_ERROR;
+	}
+	else return H1DR1_ERROR;	
 }
 
 /*-----------------------------------------------------------*/
@@ -232,12 +242,17 @@ void SetupBridgeMode(uint8_t Src_port, uint32_t baud_rate)
 */
 Module_Status SetupModbusRTU(uint32_t BaudRate, uint32_t ParityBit)
 {
+	
 	// Reinit Modbus port
-	Unbridge(src_port, P_RS485);
-	// Enable Modbus port to RTU
-	//if (MB_ENOERR != eMBMSerialInit( &xMBMaster, MB_RTU, 0, BaudRate, StopBitN ) ) { return H1DR1_ERROR;}
-	//else 	
-	return H1DR1_OK;	
+	if (H1DR1_Mode == BRIDGE) {
+		Unbridge(src_port, P_RS485);
+		}
+	H1DR1_Mode=RTU;
+	// Initialize Modbus port to RTU
+	if ( MB_ENOERR != eMBMSerialInit( &xMBMaster,  MB_RTU, 1, BaudRate, ParityBit ) ) {
+		return H1DR1_ERROR;}
+	else 	
+		return H1DR1_OK;	
 }
 
 /*-----------------------------------------------------------*/
@@ -246,17 +261,57 @@ Module_Status SetupModbusRTU(uint32_t BaudRate, uint32_t ParityBit)
 */
 Module_Status SetupModbusASCII(uint32_t BaudRate, uint32_t ParityBit)
 {
+	
 	// Reinit Modbus port
-	Unbridge(src_port, P_RS485);
-	// Enable Modbus port to ASCII
-	//if (MB_ENOERR != eMBMSerialInit( &xMBMaster, MB_ASCII, 0, BaudRate, ParityBit ) ) { return H1DR1_ERROR;}
-	//else 	
-	return H1DR1_OK;
+	if (H1DR1_Mode == BRIDGE) {
+		Unbridge(src_port, P_RS485);
+		}
+	H1DR1_Mode=ASCII;
+	// Initialize Modbus port to ASCII
+	if ( MB_ENOERR != eMBMSerialInit( &xMBMaster,  MB_ASCII, 1, BaudRate, ParityBit ) ) { 
+		return H1DR1_ERROR;}
+	else 	
+		return H1DR1_OK;
 }
 
 /*-----------------------------------------------------------*/
 
-/* --- setup the Modbus mode as ASCII
+/* --- read data from slave on Modbus port
+*/
+Module_Status ReadModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd, uint8_t NofReg, unsigned short * DataBuffer )
+{
+	unsigned short *Buffer=DataBuffer;
+
+	if (MB_ENOERR != eMBMReadHoldingRegisters(xMBMaster, SlaveAdd, RegAdd, NofReg, Buffer)) { 
+		return H1DR1_ERROR;}
+	else
+		return H1DR1_OK;
+
+}
+
+/*-----------------------------------------------------------*/
+
+/* --- write data to slave on Modbus port
+*/
+Module_Status WriteModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd, uint8_t NofReg, uint8_t Data)
+{
+	USHORT *Buffer;
+		// Check number of registers 
+	if (NofReg > 1) {
+		if (MB_ENOERR != eMBMWriteSingleRegister(xMBMaster, SlaveAdd, RegAdd, Data)) { return H1DR1_ERROR;}
+	}
+	else
+		return H1DR1_OK;
+	/*else {
+		if (MB_ENOERR != eMBMWriteMultipleRegisters(xMBMaster, SlaveAdd, RegAdd, NofReg, Data) ) { return H1DR1_ERROR;}
+		else 	
+		return H1DR1_OK;
+	}*/
+}
+
+/*-----------------------------------------------------------*/
+
+/* --- bridging API
 */
 Module_Status Bridging(void)
 {

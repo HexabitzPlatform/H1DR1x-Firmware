@@ -22,7 +22,11 @@
 /* Exported definitions -------------------------------------------------------*/
 
 /* Define state enum */
-//enum FunctionState{FALSE, TRUE};
+typedef void *MBHandle;
+enum Module_Mode{IDLE = 0x00, BRIDGE, RTU, ASCII};
+enum MB_Parity{MB_PARITY_O, MB_PARITY_E, MB_PARITY_N};
+enum MB_DataBits{MB_DATABITS_7, MB_DATABITS_8, MB_DATABITS_9};
+enum MB_StopBit{MB_STOPBIT_1 = 0x01, MB_STOPBIT_2};
 
 #define	modulePN		_H1DR1
 
@@ -108,7 +112,7 @@
 /* Module_Status Type Definition */
 #define NUM_MODULE_PARAMS		1
 
-/* H01R0_Status Type Definition */  
+/* H1DR1_Status Type Definition */  
 typedef enum 
 {
   H1DR1_OK = 0,
@@ -120,11 +124,6 @@ typedef enum
 /* Indicator LED */
 #define _IND_LED_PORT		GPIOB
 #define _IND_LED_PIN		GPIO_PIN_14
-
-enum module_mode{IDLE = 0x00, BRIDGE, RTU, ASCII};
-enum MB_Parity{MB_PARITY_O, MB_PARITY_E, MB_PARITY_N};
-enum MB_DataBits{MB_DATABITS_7, MB_DATABITS_8, MB_DATABITS_9};
-enum MB_StopBit{MB_STOPBIT_1 = 0x01, MB_STOPBIT_2};
 
 /* Export UART variables */
 extern UART_HandleTypeDef huart1;
@@ -154,17 +153,19 @@ void MX_TIM16_Init(void);
    ----------------------------------------------------------------------- 
 */
 #define CODE_H1DR1_MODE            2900
-
-
+#define CODE_H1DR1_READ            2901
+#define CODE_H1DR1_WRITE           2902
 
 	
 /* -----------------------------------------------------------------------
 	|																APIs	 																 	|
    ----------------------------------------------------------------------- 
 */
-void SetupBridgeMode(uint8_t src_port, uint32_t baud_rate);
+Module_Status SetupBridgeMode(uint8_t src_port, uint32_t baud_rate);
 Module_Status SetupModbusRTU(uint32_t BaudRate, uint32_t ParityBit);
 Module_Status SetupModbusASCII(uint32_t BaudRate, uint32_t ParityBit);
+Module_Status ReadModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd, uint8_t NofReg, unsigned short * DataBuffer);
+Module_Status WriteModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd, uint8_t NofReg, uint8_t Data);
 Module_Status Bridging(void);
 
 
