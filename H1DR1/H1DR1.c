@@ -72,7 +72,23 @@ const CLI_Command_Definition_t modeCommandDefinition =
   modeCommand, /* The function to run. */
   -1 /* Multiparameters are expected. */
 };
-
+/* CLI command structure : demo */
+const CLI_Command_Definition_t readCommandDefinition =
+{
+	( const int8_t * ) "read", /* The command string to type. */
+	( const int8_t * ) "read:\r\n Read to Modbus slave\r\n\r\n",
+	readCommand, /* The function to run. */
+	-1 /* no parameter is expected. */
+};
+/*-----------------------------------------------------------*/
+/* CLI command structure : sample */
+const CLI_Command_Definition_t writeCommandDefinition =
+{
+  ( const int8_t * ) "write", /* The command string to type. */
+  ( const int8_t * ) "write:\r\n Write to Modbus slave\r\n\r\n",
+  writeCommand, /* The function to run. */
+  -1 /* Multiparameters are expected. */
+};
 
 /* -----------------------------------------------------------------------
 	|												 Private Functions	 														|
@@ -116,9 +132,9 @@ Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uin
 			switch(cMessage[port-1][shift])
 			{
 				case (BRIDGE):
-					src_port = cMessage[port-1][1+shift];
+					Src_port = cMessage[port-1][1+shift];
 					Br_baud_rate = ( (uint32_t) cMessage[port-1][2+shift] << 24 ) + ( (uint32_t) cMessage[port-1][3+shift] << 16 ) + ( (uint32_t) cMessage[port-1][4+shift] << 8 ) + cMessage[port-1][5+shift];
-					SetupBridgeMode(src_port,Br_baud_rate);
+					SetupBridgeMode(Src_port,Br_baud_rate);
 					break;
 				case (RTU):
 					Br_baud_rate = ( (uint32_t) cMessage[port-1][1+shift] << 24 ) + ( (uint32_t) cMessage[port-1][2+shift] << 16 ) + ( (uint32_t) cMessage[port-1][3+shift] << 8 ) + cMessage[port-1][4+shift];
@@ -131,9 +147,24 @@ Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uin
 					SetupModbusASCII(Br_baud_rate, Parity_bit);
 					break;
 				default :
-					break;
-				
+					break;		
 			}
+			break;
+			
+		case (CODE_H1DR1_READ):
+			Slave_add = cMessage[port-1][1+shift];
+			Reg_address = ( (uint16_t) cMessage[port-1][2+shift] << 8 ) + cMessage[port-1][3+shift];
+			Nu_regiters = ( (uint16_t) cMessage[port-1][4+shift] << 8 ) + cMessage[port-1][5+shift];
+			//ReadModbusRegister(Slave_add, Reg_address, Nu_regiters, );
+		break;
+		
+		case (CODE_H1DR1_WRITE):
+			Slave_add = cMessage[port-1][1+shift];
+			Reg_address = ( (uint16_t) cMessage[port-1][2+shift] << 8 ) + cMessage[port-1][3+shift];
+			Nu_regiters = ( (uint16_t) cMessage[port-1][4+shift] << 8 ) + cMessage[port-1][5+shift];
+			//WriteModbusRegister(Slave_add, Reg_address, Nu_regiters, );
+		 break;
+		
 		default:
 			result = H1DR1_ERR_UnknownMessage;
 			break;
