@@ -38,13 +38,14 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "BOS.h"
-//#include "mbm.h"
+#include "mbm.h"
 
 /* Private variables ---------------------------------------------------------*/
-uint32_t data;
-char DataToSend;
-Module_Status state;
-//xMBHandle xMBMMaster;
+USHORT DataToSend;
+USHORT DataToSd;
+//xMBMHandle xMBMaster;
+Module_Status eStatus;
+Module_Status eStatus2;		
 
 /* Private function prototypes -----------------------------------------------*/
 
@@ -93,12 +94,29 @@ int main(void)
 void UserTask(void * argument)
 {
 
+	//eStatus=eMBMSerialInit( &xMBMaster, MB_RTU, 1, 19200, MB_PAR_EVEN ) ;
+	eStatus=SetupModbusASCII(19200, MB_PAR_EVEN);
+	
 	
 	/* Infinite loop */
 	for(;;)
 	{
+		//DataToSend=15;
+		eStatus2=ReadModbusRegister(9, 6, 1, &DataToSd);
+		//eStatus2=eMBMReadHoldingRegisters(xMBMaster, 9, 6, 1, &DataToSd);
+		//eStatus2=eMBMWriteSingleRegister( xMBMaster, 9, 2, DataToSend );
 		
+		IND_ON();                // turn inducator LED on
+		Delay_ms(50);
+		IND_OFF();                // turn inducator LED off
 		
+		DataToSend=12;
+		eStatus2=WriteModbusRegister(9, 6, 1, DataToSend);
+		//eStatus2=eMBMWriteSingleRegister( xMBMaster, 9, 2, DataToSend );
+		
+		IND_ON();                // turn inducator LED on
+		Delay_ms(50);
+		IND_OFF();                // turn inducator LED off
 		
 	}
 }

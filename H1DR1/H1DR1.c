@@ -336,7 +336,8 @@ Module_Status WriteModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd, uint8_t Nof
 	USHORT *Buffer;
 		// Check number of registers 
 	if (NofReg > 1) {
-		if (MB_ENOERR != eMBMWriteSingleRegister(xMBMaster, SlaveAdd, RegAdd, Data)) { return H1DR1_ERROR;}
+		if (MB_ENOERR != eMBMWriteSingleRegister(xMBMaster, SlaveAdd, RegAdd, Data)) {
+		return H1DR1_ERROR;}
 	}
 	else
 		return H1DR1_OK;
