@@ -161,7 +161,7 @@ void MX_TIM16_Init(void);
 	|																APIs	 																 	|
    ----------------------------------------------------------------------- 
 */
-Module_Status SetupBridgeMode(uint8_t src_port, uint32_t baud_rate);
+Module_Status SetupBridgeMode(uint8_t Source_p, uint32_t baud_rate);
 Module_Status SetupModbusRTU(uint32_t BaudRate, uint32_t ParityBit);
 Module_Status SetupModbusASCII(uint32_t BaudRate, uint32_t ParityBit);
 Module_Status ReadModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd, uint8_t NofReg, unsigned short * DataBuffer);

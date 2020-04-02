@@ -43,8 +43,8 @@
 
 /*USER CODE BEGIN 0 */
 extern uint8_t H1DR1_Mode;
-extern uint8_t src_port;
-extern uint32_t Br_baud_rate;
+extern uint8_t Src_port;
+//extern uint32_t Br_baud_rate;
 TIM_HandleTypeDef htim16;
 extern UART_HandleTypeDef huart1;
 
@@ -332,7 +332,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	// Check if there is data received from bridge port
 	if (H1DR1_Mode==BRIDGE)
 	{
-		if (huart==GetUart(src_port))
+		if (huart==GetUart(Src_port))
 		{
 			// Set RS485 port to transmitter
 			RS485_RECEIVER_DIS();

@@ -29,13 +29,17 @@ UART_HandleTypeDef huart6;
 
 /* Module exported parameters ------------------------------------------------*/
 int MB_Param = 0;
-module_param_t modParam[NUM_MODULE_PARAMS] = {{.paramPtr=&MB_Param, .paramFormat=FMT_FLOAT, .paramName="MB_Param"}};
+module_param_t modParam[NUM_MODULE_PARAMS] = {{.paramPtr=&MB_Param, .paramFormat=FMT_UINT8, .paramName="Mode"}};
 
 /* Private variables ---------------------------------------------------------*/
 uint8_t H1DR1_Mode;
-uint8_t src_port;
+uint8_t Src_port;
 uint32_t Br_baud_rate;
 uint32_t Parity_bit;
+uint8_t Slave_add;
+uint16_t Reg_address;
+uint16_t Nu_regiters;
+xMBMHandle xMBMaster;
 
 TaskHandle_t H1DR1ModeHandle = NULL;
 TaskHandle_t ModbusRTUTaskHandle = NULL;
@@ -48,6 +52,8 @@ void H1DR1ModeTask(void * argument);
 /* Create CLI commands --------------------------------------------------------*/
 static portBASE_TYPE demoCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
 static portBASE_TYPE modeCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
+static portBASE_TYPE readCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
+static portBASE_TYPE writeCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
 
 /* CLI command structure : demo */
 const CLI_Command_Definition_t demoCommandDefinition =
@@ -144,7 +150,8 @@ void RegisterModuleCLICommands(void)
 {
 	FreeRTOS_CLIRegisterCommand( &demoCommandDefinition );
 	FreeRTOS_CLIRegisterCommand( &modeCommandDefinition );
-	
+	FreeRTOS_CLIRegisterCommand( &readCommandDefinition );
+	FreeRTOS_CLIRegisterCommand( &writeCommandDefinition );
 }
 
 /*-----------------------------------------------------------*/
@@ -208,7 +215,7 @@ void ModbusRTUTask(void * argument)
 
 /* --- setup RS485 port as bridge
 */
-Module_Status SetupBridgeMode(uint8_t Src_port, uint32_t baud_rate)
+Module_Status SetupBridgeMode(uint8_t Source_p, uint32_t baud_rate)
 {
 	// Disable MB in case it is running
 	if (H1DR1_Mode == BRIDGE) {
@@ -220,10 +227,10 @@ Module_Status SetupBridgeMode(uint8_t Src_port, uint32_t baud_rate)
 	if ( MB_PORT_Init(baud_rate, 1, 0, 1) == H1DR1_OK )
 	{    
 		// Set the baud rate of the src port to baud_rate
-		if ( UpdateBaudrate(Src_port, baud_rate) == BOS_OK )
+		if ( UpdateBaudrate(Source_p, baud_rate) == BOS_OK )
 		{
 			// Bridge between the src port and RS485 port
-			if ( Bridge(Src_port, P_RS485) == BOS_OK )
+			if ( Bridge(Source_p, P_RS485) == BOS_OK )
 			{
 				// Set the RS485 to Receiver
 				RS485_RECEIVER_EN();
@@ -245,7 +252,7 @@ Module_Status SetupModbusRTU(uint32_t BaudRate, uint32_t ParityBit)
 	
 	// Reinit Modbus port
 	if (H1DR1_Mode == BRIDGE) {
-		Unbridge(src_port, P_RS485);
+		Unbridge(Src_port, P_RS485);
 		}
 	H1DR1_Mode=RTU;
 	// Initialize Modbus port to RTU
@@ -264,7 +271,7 @@ Module_Status SetupModbusASCII(uint32_t BaudRate, uint32_t ParityBit)
 	
 	// Reinit Modbus port
 	if (H1DR1_Mode == BRIDGE) {
-		Unbridge(src_port, P_RS485);
+		Unbridge(Src_port, P_RS485);
 		}
 	H1DR1_Mode=ASCII;
 	// Initialize Modbus port to ASCII
@@ -360,7 +367,6 @@ portBASE_TYPE demoCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const 
 	/* Respond to the command */
 			strcpy(( char * ) pcWriteBuffer, ( char * ) pcMessage);
 		
-		//
 		/* Wait till the end of stream */
 		//while(startMeasurementRanging != STOP_MEASUREMENT_RANGING){};
 	
@@ -380,6 +386,8 @@ portBASE_TYPE demoCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const 
 
 static portBASE_TYPE modeCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString )
 {
+  static const int8_t *pcMessage = ( int8_t * ) "Setup RS485 port mode!\r\n";
+	static const int8_t *pcMessageWrongParam = ( int8_t * ) "Wrong parameter!\r\n";
 	Module_Status result = H1DR1_OK;
   int8_t *pcParameterString1;
 	int8_t *pcParameterString2;
@@ -387,8 +395,7 @@ static portBASE_TYPE modeCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen,
   portBASE_TYPE xParameterStringLength1 = 0;
 	portBASE_TYPE xParameterStringLength2 = 0;
 	portBASE_TYPE xParameterStringLength3 = 0;
-  static const int8_t *pcMessage = ( int8_t * ) "Setup RS485 port mode!\r\n";
-	static const int8_t *pcMessageWrongParam = ( int8_t * ) "Wrong parameter!\r\n";
+	uint8_t Pb;
 
   /* Remove compile time warnings about unused parameters, and check the
   write buffer is not NULL.  NOTE - for simplicity, this example assumes the
@@ -398,33 +405,52 @@ static portBASE_TYPE modeCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen,
 
   /* 1st parameter for RS485 port mode */
   pcParameterString1 = ( int8_t * ) FreeRTOS_CLIGetParameter (pcCommandString, 1, &xParameterStringLength1);
-	/* 2nd parameter for RS485 Modbus mode or src port in case of BRIDGE mode */
+	/* 2nd parameter for parity bit or src port in case of BRIDGE mode */
   pcParameterString2 = ( int8_t * ) FreeRTOS_CLIGetParameter (pcCommandString, 2, &xParameterStringLength2);
-	/* 3rd parameter for baud rate in case of BRIDGE mode */
+	/* 3rd parameter for baud rate */
   pcParameterString3 = ( int8_t * ) FreeRTOS_CLIGetParameter (pcCommandString, 3, &xParameterStringLength3);
 	
 	/* Respond to the command */
 	if (pcParameterString2[0] == 'p' && !strncmp((const char *)pcParameterString1, "bridge", 6)) 
 	{
-		src_port = ( uint8_t ) atol( ( char * ) pcParameterString2+1 );
+		Src_port = ( uint8_t ) atol( ( char * ) pcParameterString2+1 );
 		Br_baud_rate = ( uint32_t ) atol( ( char * ) pcParameterString3 );
-		SetupBridgeMode(src_port,Br_baud_rate);
+		SetupBridgeMode(Src_port,Br_baud_rate);
 		
 	}
-	else if (NULL != pcParameterString2 && !strncmp((const char *)pcParameterString1, "mb", 2))
+	else if (NULL != pcParameterString2 && !strncmp((const char *)pcParameterString1, "rtu", 3))
 	{
-		if (!strncmp((const char *)pcParameterString1, "rtu", 3))
-		{
-			H1DR1_Mode=RTU;
-		}
-		else if (!strncmp((const char *)pcParameterString1, "ascii", 5))
-		{
-			H1DR1_Mode=ASCII;
-		}
-		else result=H1DR1_ERR_WrongParams;
+		Br_baud_rate = ( uint32_t ) atol( ( char * ) pcParameterString3 );
+		Pb = ( uint8_t ) atol( ( char * ) pcParameterString2 );
+		switch (Pb){
+			case 1: 
+				Parity_bit = UART_STOPBITS_1;
+				break;
+			case 2:
+				Parity_bit = UART_STOPBITS_2;
+				break;
+			default: 
+				result=H1DR1_ERR_WrongParams;
+		}	
+		SetupModbusRTU(Br_baud_rate, Parity_bit);
+	}
+	else if (!strncmp((const char *)pcParameterString1, "ascii", 5))
+	{
+		Br_baud_rate = ( uint32_t ) atol( ( char * ) pcParameterString3 );
+		Pb = ( uint8_t ) atol( ( char * ) pcParameterString2 );
+		switch (Pb){
+			case 1: 
+				Parity_bit = UART_STOPBITS_1;
+				break;
+			case 2:
+				Parity_bit = UART_STOPBITS_2;
+				break;
+			default: 
+				result=H1DR1_ERR_WrongParams;
+		}			
+	SetupModbusASCII(Br_baud_rate, Parity_bit);
 	}
 	else result=H1DR1_ERR_WrongParams;
-	
 	
   if (H1DR1_ERR_WrongParams == result)
   {
@@ -436,9 +462,115 @@ static portBASE_TYPE modeCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen,
 	return H1DR1_OK;	
 }
 
+/*-----------------------------------------------------------*/
 
+portBASE_TYPE readCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString )
+{
+	static const int8_t *pcMessage = ( int8_t * ) "Read from Modbus slave\r\n";
+	static const int8_t *pcMessageError = ( int8_t * ) "Wrong parameter\r\n";
+	Module_Status result = H1DR1_OK;
+  int8_t *pcParameterString1;
+	int8_t *pcParameterString2;
+	int8_t *pcParameterString3;
+  portBASE_TYPE xParameterStringLength1 = 0;
+	portBASE_TYPE xParameterStringLength2 = 0;
+	portBASE_TYPE xParameterStringLength3 = 0;
+	portBASE_TYPE xParameterStringLength4 = 0;
+	
+	/* Remove compile time warnings about unused parameters, and check the
+	write buffer is not NULL.  NOTE - for simplicity, this example assumes the
+	write buffer length is adequate, so does not check for buffer overflows. */
+	( void ) pcCommandString;
+	( void ) xWriteBufferLen;
+	configASSERT( pcWriteBuffer );
+	
+	/* 1st parameter for slave address */
+  pcParameterString1 = ( int8_t * ) FreeRTOS_CLIGetParameter (pcCommandString, 1, &xParameterStringLength1);
+	/* 2nd parameter for first register address */
+  pcParameterString2 = ( int8_t * ) FreeRTOS_CLIGetParameter (pcCommandString, 2, &xParameterStringLength2);
+	/* 3rd parameter for number of regsiters */
+  pcParameterString3 = ( int8_t * ) FreeRTOS_CLIGetParameter (pcCommandString, 3, &xParameterStringLength3);
+	
+	/* Respond to the command */
+	Slave_add = ( uint8_t ) atol( ( char * ) pcParameterString1 );
+	Reg_address = ( uint16_t ) atol( ( char * ) pcParameterString2 );
+	Nu_regiters = ( uint16_t ) atol( ( char * ) pcParameterString3 );
+	
+	/*if ( H1DR1_ERROR != ReadModbusRegister(xMBMaster, Slave_add, Reg_address, Nu_regiters, Buffer) ){
+		result=H1DR1_OK;
+	}
+	else result=H1DR1_ERR_WrongParams;*/
+	
+	strcpy(( char * ) pcWriteBuffer, ( char * ) pcMessage);
+		/* Wait till the end of stream */
+		//while(startMeasurementRanging != STOP_MEASUREMENT_RANGING){};
+	
+	if (result != H1DR1_OK){
+		strcpy(( char * ) pcWriteBuffer, ( char * ) pcMessageError);
+	}
+
+	/* clean terminal output */
+	memset((char *) pcWriteBuffer, 0, strlen((char *)pcWriteBuffer));
+			
+	/* There is no more data to return after this single string, so return
+	pdFALSE. */
+	return pdFALSE;
+}
 
 /*-----------------------------------------------------------*/
+
+portBASE_TYPE writeCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString )
+{
+	static const int8_t *pcMessage = ( int8_t * ) "Write to Modbus slave\r\n";
+	static const int8_t *pcMessageError = ( int8_t * ) "Wrong parameter\r\n";
+	Module_Status result = H1DR1_OK;
+  int8_t *pcParameterString1;
+	int8_t *pcParameterString2;
+	int8_t *pcParameterString3;
+  portBASE_TYPE xParameterStringLength1 = 0;
+	portBASE_TYPE xParameterStringLength2 = 0;
+	portBASE_TYPE xParameterStringLength3 = 0;
+	portBASE_TYPE xParameterStringLength4 = 0;
+	
+	/* Remove compile time warnings about unused parameters, and check the
+	write buffer is not NULL.  NOTE - for simplicity, this example assumes the
+	write buffer length is adequate, so does not check for buffer overflows. */
+	( void ) pcCommandString;
+	( void ) xWriteBufferLen;
+	configASSERT( pcWriteBuffer );
+	
+	/* 1st parameter for slave address */
+  pcParameterString1 = ( int8_t * ) FreeRTOS_CLIGetParameter (pcCommandString, 1, &xParameterStringLength1);
+	/* 2nd parameter for first register address */
+  pcParameterString2 = ( int8_t * ) FreeRTOS_CLIGetParameter (pcCommandString, 2, &xParameterStringLength2);
+	/* 3rd parameter for number of regsiters */
+  pcParameterString3 = ( int8_t * ) FreeRTOS_CLIGetParameter (pcCommandString, 3, &xParameterStringLength3);
+	
+	/* Respond to the command */
+	Slave_add = ( uint8_t ) atol( ( char * ) pcParameterString1 );
+	Reg_address = ( uint16_t ) atol( ( char * ) pcParameterString2 );
+	Nu_regiters = ( uint16_t ) atol( ( char * ) pcParameterString3 );
+	
+	/*if ( H1DR1_ERROR != WriteModbusRegister(xMBMaster, Slave_add, Reg_address, Nu_regiters, Buffer) ){
+		result=H1DR1_OK;
+	}
+	else result=H1DR1_ERR_WrongParams;*/
+	
+			strcpy(( char * ) pcWriteBuffer, ( char * ) pcMessage);
+		/* Wait till the end of stream */
+		//while(startMeasurementRanging != STOP_MEASUREMENT_RANGING){};
+	
+	if (result != H1DR1_OK){
+		strcpy(( char * ) pcWriteBuffer, ( char * ) pcMessageError);
+	}
+
+	/* clean terminal output */
+	memset((char *) pcWriteBuffer, 0, strlen((char *)pcWriteBuffer));
+			
+	/* There is no more data to return after this single string, so return
+	pdFALSE. */
+	return pdFALSE;
+}
 
 
 /************************ (C) COPYRIGHT HEXABITZ *****END OF FILE****/
