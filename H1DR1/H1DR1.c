@@ -249,13 +249,14 @@ void ModbusRTUTask(void * argument)
 Module_Status SetupBridgeMode(uint8_t Source_p, uint32_t baud_rate)
 {
 	// Disable MB in case it is running
-	if (H1DR1_Mode == BRIDGE) {
-	//eMBMClose();   
+	if (H1DR1_Mode != BRIDGE) {
+	eMBMClose(xMBMaster);   
 	}
 	// Set the mode of the module
 	H1DR1_Mode=BRIDGE;
+	Src_port=Source_p;
 	// Reinit the RS485 port to the needed settings 
-	if ( MB_PORT_Init(baud_rate, 1, 0, 1) == H1DR1_OK )
+	if ( MB_PORT_Init(baud_rate, UART_WORDLENGTH_8B, UART_PARITY_NONE, UART_STOPBITS_1) == H1DR1_OK )
 	{    
 		// Set the baud rate of the src port to baud_rate
 		if ( UpdateBaudrate(Source_p, baud_rate) == BOS_OK )
