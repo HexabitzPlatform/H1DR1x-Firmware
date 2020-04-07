@@ -110,6 +110,7 @@ void Module_Init(void)
 	/* RS485 port */
 	//MB_PORT_Init(19200, UART_WORDLENGTH_8B, UART_PARITY_NONE, UART_STOPBITS_1);
 	RS485_DE_RE_Init();
+	//RS485_RECEIVER_DIS();
 	/*UpdateBaudrate(P3, 19200);
 	src_port=P3;
 	SetupBridgeMode(src_port,19200);*/
@@ -334,14 +335,14 @@ Module_Status ReadModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd, uint8_t NofR
 */
 Module_Status WriteModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd, uint8_t NofReg, uint8_t Data)
 {
-	USHORT *Buffer;
+//	USHORT *Buffer;
 		// Check number of registers 
 	if (NofReg > 1) {
 		if (MB_ENOERR != eMBMWriteSingleRegister(xMBMaster, SlaveAdd, RegAdd, Data)) {
 		return H1DR1_ERROR;}
-	}
 	else
 		return H1DR1_OK;
+	}
 	/*else {
 		if (MB_ENOERR != eMBMWriteMultipleRegisters(xMBMaster, SlaveAdd, RegAdd, NofReg, Data) ) { return H1DR1_ERROR;}
 		else 	
@@ -508,7 +509,7 @@ portBASE_TYPE readCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const 
   portBASE_TYPE xParameterStringLength1 = 0;
 	portBASE_TYPE xParameterStringLength2 = 0;
 	portBASE_TYPE xParameterStringLength3 = 0;
-	portBASE_TYPE xParameterStringLength4 = 0;
+//	portBASE_TYPE xParameterStringLength4 = 0;
 	
 	/* Remove compile time warnings about unused parameters, and check the
 	write buffer is not NULL.  NOTE - for simplicity, this example assumes the
@@ -563,7 +564,7 @@ portBASE_TYPE writeCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const
   portBASE_TYPE xParameterStringLength1 = 0;
 	portBASE_TYPE xParameterStringLength2 = 0;
 	portBASE_TYPE xParameterStringLength3 = 0;
-	portBASE_TYPE xParameterStringLength4 = 0;
+//	portBASE_TYPE xParameterStringLength4 = 0;
 	
 	/* Remove compile time warnings about unused parameters, and check the
 	write buffer is not NULL.  NOTE - for simplicity, this example assumes the
