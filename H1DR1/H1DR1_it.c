@@ -44,23 +44,19 @@
 /*USER CODE BEGIN 0 */
 extern uint8_t H1DR1_Mode;
 extern uint8_t Src_port;
-//extern uint32_t Br_baud_rate;
-TIM_HandleTypeDef htim16;
 extern UART_HandleTypeDef huart1;
+TIM_HandleTypeDef htim16;
 
 /*USER CODE END 0 */
 
 
 /* External variables --------------------------------------------------------*/
 extern uint8_t UARTRxBuf[NumOfPorts][MSG_RX_BUF_SIZE];
-//extern uint8_t UARTTxBuf[3][MSG_TX_BUF_SIZE];
 
 /* External function prototypes ----------------------------------------------*/
 extern void vMBPTimerISR( void );
-extern void vMBPUSART1ISR( void );
-//extern void prvvMBPUSART1_TXE_ISR( void );
-//extern void prvvMBPUSART1_TC_ISR( void );
-//extern void prvvMBPUSART1_RXNE_ISR( void );
+extern void prvvMBPUSART1_TC_ISR( void );
+extern void prvvMBPUSART1_RXNE_ISR( void );
 extern TaskHandle_t xCommandConsoleTaskHandle;
 extern void NotifyMessagingTaskFromISR(uint8_t port);
 
@@ -105,12 +101,6 @@ void USART1_IRQHandler(void)
 		
 #if defined (_Usart1)		
   HAL_UART_IRQHandler(&huart1);
-	
-	// Enter MB Port ISR if enabled
-	if (H1DR1_Mode==RTU || H1DR1_Mode==ASCII)
-	{
-		vMBPUSART1ISR();
-	}
 	
 #endif
 	
@@ -281,16 +271,16 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 		// Enable receiver mode
 		RS485_RECEIVER_EN();
 	}
-	/*
+	
 	// Check the Tx interrupt of Modbus protocol
 	if (H1DR1_Mode==RTU || H1DR1_Mode==ASCII)
 	{
 		if (huart == P_RS485uart )
 		{
-				// Call Modbus protocol port ISR API
+				// Call Modbus protocol port ISR
 				prvvMBPUSART1_TC_ISR();
 		}
-	}*/
+	}
 }
 
 /*-----------------------------------------------------------*/
@@ -339,16 +329,16 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			__HAL_UART_ENABLE_IT(&huart1, UART_IT_TC);
 		}
 	}
-	/*	
+	
 	// Check the RX interrupt of Modbus protocol
 	if (H1DR1_Mode==RTU || H1DR1_Mode==ASCII)
 	{
 		if (huart==&huart1)
 		{
-			// Call Modbus protocol port ISR API
+			// Call Modbus protocol port ISR
 			prvvMBPUSART1_RXNE_ISR();
 		}
-	}*/
+	}
 }
 
 /*-----------------------------------------------------------*/
