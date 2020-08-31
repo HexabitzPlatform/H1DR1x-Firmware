@@ -39,7 +39,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "BOS.h"
 #include "H1DR1.h"
-#include "mbm.h"
+//#include "mbm.h"
 
 /*USER CODE BEGIN 0 */
 extern uint8_t H1DR1_Mode;
@@ -54,9 +54,9 @@ TIM_HandleTypeDef htim16;
 extern uint8_t UARTRxBuf[NumOfPorts][MSG_RX_BUF_SIZE];
 
 /* External function prototypes ----------------------------------------------*/
-extern void vMBPTimerISR( void );
-extern void prvvMBPUSART1_TC_ISR( void );
-extern void prvvMBPUSART1_RXNE_ISR( void );
+//extern void vMBPTimerISR( void );
+//extern void prvvMBPUSART1_TC_ISR( void );
+//extern void prvvMBPUSART1_RXNE_ISR( void );
 extern TaskHandle_t xCommandConsoleTaskHandle;
 extern void NotifyMessagingTaskFromISR(uint8_t port);
 
@@ -98,7 +98,7 @@ void HardFault_Handler(void)
 void USART1_IRQHandler(void)
 {
 	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
-		
+	
 #if defined (_Usart1)		
   HAL_UART_IRQHandler(&huart1);
 	
@@ -223,13 +223,21 @@ void DMA1_Ch4_7_DMA2_Ch3_5_IRQHandler(void)
 	}
 }
 
+/*-----------------------------------------------------------*/
 
 /**
 * @brief This function handles TIM16 global interrupt.
 */
 void TIM16_IRQHandler(void)
 {
+	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+	
 	HAL_TIM_IRQHandler(&htim16);
+	
+	/* If lHigherPriorityTaskWoken is now equal to pdTRUE, then a context
+	switch should be performed before the interrupt exists.  That ensures the
+	unblocked (higher priority) task is returned to immediately. */
+	portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
 	
   /* USER CODE BEGIN TIM16_IRQn 0 */
 
@@ -238,19 +246,20 @@ void TIM16_IRQHandler(void)
   /* USER CODE BEGIN TIM16_IRQn 1 */
 
   /* USER CODE END TIM16_IRQn 1 */
+	
 }
 
 /*-----------------------------------------------------------*/
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-	if (htim == &htim16 )
-		{
-			// Call Modbus protocol timer ISR API
-			vMBPTimerISR();
-		}
-
-}
+//void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+//{
+//	if ( htim->Instance==TIM16 )
+//		{
+//			
+//			vMBPTimerISR();                           // Call Modbus protocol timer ISR
+//		}
+//		
+//}
 
 /*-----------------------------------------------------------*/
 
@@ -265,22 +274,18 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 	/* Give back the mutex. */
 	xSemaphoreGiveFromISR( PxTxSemaphoreHandle[GetPort(huart)], &( xHigherPriorityTaskWoken ) );
 	
-	// Check if the huart is P_RS485
-	if (huart == P_RS485uart )
-	{
-		// Enable receiver mode
-		RS485_RECEIVER_EN();
-	}
-	
-	// Check the Tx interrupt of Modbus protocol
-	if (H1DR1_Mode==RTU || H1DR1_Mode==ASCII)
-	{
-		if (huart == P_RS485uart )
-		{
-				// Call Modbus protocol port ISR
-				prvvMBPUSART1_TC_ISR();
-		}
-	}
+//	/* Check if the huart is P_RS485 */
+//	if (huart == P_RS485uart )
+//	{
+//		/* Check the Tx interrupt of Modbus protocol */
+//		if (H1DR1_Mode==RTU || H1DR1_Mode==ASCII)
+//		{	
+//			prvvMBPUSART1_TC_ISR();                   // Call Modbus protocol port ISR
+//		}
+//		else
+//		RS485_RECEIVER_EN();                        // Enable receiver mode
+//	}
+
 }
 
 /*-----------------------------------------------------------*/
@@ -307,6 +312,26 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
+
+	/* Check if data received from bridge port */
+	if (H1DR1_Mode==BRIDGE)
+	{
+		if (huart==GetUart(Src_port))
+		{	
+			RS485_RECEIVER_DIS();                     // Set RS485 port to transmitter
+			__HAL_UART_ENABLE_IT(&huart1, UART_IT_TC);
+		}
+	}
+	
+//	/* Check the RX interrupt of Modbus protocol */
+//	if (H1DR1_Mode==RTU || H1DR1_Mode==ASCII)
+//	{
+//		if (huart==&huart1)
+//		{
+//			prvvMBPUSART1_RXNE_ISR();                 // Call Modbus protocol port ISR
+//		}
+//	}
+	
 	// Check only ports in messaging mode
 	if (portStatus[GetPort(huart)] == FREE || portStatus[GetPort(huart)] == MSG)
 	{
@@ -319,26 +344,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		MsgDMAStopped[GetPort(huart)-1] = true;		
 	}
 	
-	// Check if there is data received from bridge port
-	if (H1DR1_Mode==BRIDGE)
-	{
-		if (huart==GetUart(Src_port))
-		{
-			// Set RS485 port to transmitter
-			RS485_RECEIVER_DIS();
-			__HAL_UART_ENABLE_IT(&huart1, UART_IT_TC);
-		}
-	}
 	
-	// Check the RX interrupt of Modbus protocol
-	if (H1DR1_Mode==RTU || H1DR1_Mode==ASCII)
-	{
-		if (huart==&huart1)
-		{
-			// Call Modbus protocol port ISR
-			prvvMBPUSART1_RXNE_ISR();
-		}
-	}
 }
 
 /*-----------------------------------------------------------*/

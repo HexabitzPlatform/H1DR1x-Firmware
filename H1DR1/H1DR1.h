@@ -13,16 +13,15 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "BOS.h"
+#include "H1DR1_dma.h"	
 #include "H1DR1_MemoryMap.h"	
 #include "H1DR1_uart.h"	
 #include "H1DR1_gpio.h"	
-#include "H1DR1_dma.h"	
 	
 	
 /* Exported definitions -------------------------------------------------------*/
 
 /* Define state enum */
-typedef void *MBHandle;
 enum Module_Mode{IDLE = 0x00, BRIDGE, RTU, ASCII};
 enum MB_Parity{MB_PARITY_O, MB_PARITY_E, MB_PARITY_N};
 enum MB_DataBits{MB_DATABITS_7, MB_DATABITS_8, MB_DATABITS_9};
@@ -31,7 +30,7 @@ enum MB_StopBit{MB_STOPBIT_1 = 0x01, MB_STOPBIT_2};
 #define	modulePN		_H1DR1
 
 /* Port-related definitions */
-#define	NumOfPorts		6
+#define	NumOfPorts		6             /* to remove P6 from BOS ports */
 #define P_PROG 				P2						/* ST factory bootloader UART */
 
 /* Define available ports */
@@ -43,7 +42,7 @@ enum MB_StopBit{MB_STOPBIT_1 = 0x01, MB_STOPBIT_2};
 #define _P6 
 
 /* Define available USARTs */
-#define _Usart1 1   // if 0 it will be removed from BOS ports
+#define _Usart1 1   
 #define _Usart2 1
 #define _Usart3 1
 #define _Usart4 1
@@ -101,7 +100,6 @@ enum MB_StopBit{MB_STOPBIT_1 = 0x01, MB_STOPBIT_2};
 	#define _P_RS485 		_P6
 	#define P_RS485 		P6
 	#define	RS485_RE_DE_PIN		GPIO_PIN_12
-	//#define	RS485_DE_PIN		GPIO_PIN_0
 	#define	RS485_RE_DE_PORT		GPIOA
 	// \RE_DE = 0 Enable receiver output
 	#define	RS485_RECEIVER_EN()		HAL_GPIO_WritePin(RS485_RE_DE_PORT, RS485_RE_DE_PIN, GPIO_PIN_RESET)
@@ -134,7 +132,7 @@ extern UART_HandleTypeDef huart5;
 extern UART_HandleTypeDef huart6;
 
 /* Define UART Init prototypes */
-Module_Status MB_PORT_Init(uint16_t BaudRate, uint8_t DataBitsN, uint32_t ParityBit, uint32_t StopBitN);
+Module_Status MB_PORT_Init(uint16_t BaudRate, uint32_t DataBitsN, uint32_t ParityBit, uint32_t StopBitN);
 extern void MX_USART1_UART_Init(void);
 extern void MX_USART2_UART_Init(void);
 extern void MX_USART3_UART_Init(void);
@@ -144,6 +142,7 @@ extern void MX_USART6_UART_Init(void);
 
 /* Export TIM16 variables */
 extern TIM_HandleTypeDef htim16;
+#define TIMERID_MB_TIMER   0xFF
 
 /* Define TIM16 Init prototypes */
 void MX_TIM16_Init(void);
@@ -155,18 +154,20 @@ void MX_TIM16_Init(void);
 #define CODE_H1DR1_MODE            2900
 #define CODE_H1DR1_READ            2901
 #define CODE_H1DR1_WRITE           2902
-
+#define CODE_H1DR1_MULTIWRITE      2903
+#define CODE_H1DR1_STIMEOUT        2904
 	
 /* -----------------------------------------------------------------------
 	|																APIs	 																 	|
    ----------------------------------------------------------------------- 
 */
 Module_Status SetupBridgeMode(uint8_t Source_p, uint32_t baud_rate);
-Module_Status SetupModbusRTU(uint32_t BaudRate, uint32_t ParityBit);
-Module_Status SetupModbusASCII(uint32_t BaudRate, uint32_t ParityBit);
-Module_Status ReadModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd, uint8_t NofReg, unsigned short * DataBuffer);
-Module_Status WriteModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd, uint8_t NofReg, uint8_t Data);
-Module_Status Bridging(void);
+//Module_Status SetupModbusRTU(uint32_t BaudRate, uint32_t ParityBit);
+//Module_Status SetupModbusASCII(uint32_t BaudRate, uint32_t ParityBit);
+//Module_Status ReadModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd, uint8_t NofReg, unsigned short * DataBuffer);
+//Module_Status WriteModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd, uint32_t Data);
+//Module_Status WriteModbusMultiRegisters(uint8_t SlaveAdd, uint32_t RegAdd, uint8_t NofReg, uint16_t *Data);
+//Module_Status SetTimeOut(uint16_t MiliSeconds);
 
 
 /* -----------------------------------------------------------------------

@@ -45,7 +45,7 @@ FlagStatus UartTxReady = RESET;
 
 
 /* MB Port Initialization */
-Module_Status MB_PORT_Init(uint16_t BAUD_RATE, uint8_t DataBitsN, uint32_t PARITY_BIT, uint32_t STOP_BIT)   
+Module_Status MB_PORT_Init(uint16_t BAUD_RATE, uint32_t DataBitsN, uint32_t PARITY_BIT, uint32_t STOP_BIT)   
 {
   huart1.Instance = USART1;
   huart1.Init.BaudRate = BAUD_RATE;
@@ -56,9 +56,9 @@ Module_Status MB_PORT_Init(uint16_t BAUD_RATE, uint8_t DataBitsN, uint32_t PARIT
   huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart1.Init.OverSampling = UART_OVERSAMPLING_16;
   huart1.Init.OneBitSampling = UART_ONEBIT_SAMPLING_DISABLED;
-  huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_RXOVERRUNDISABLE_INIT;
+	huart1.AdvancedInit.OverrunDisable = UART_ADVFEATURE_OVERRUN_DISABLE;
 	
-	//HAL_RS485Ex_Init(&huart1, UART_DE_POLARITY_HIGH, 1, 1);
 	HAL_UART_Init(&huart1);
 	#if _P6pol_reversed
 		huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_SWAP_INIT;

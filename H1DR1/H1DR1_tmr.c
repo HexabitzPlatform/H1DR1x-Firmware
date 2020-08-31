@@ -56,19 +56,21 @@ void MX_TIM16_Init(void)
 
 	/* Peripheral configuration */
   htim16.Instance = TIM16;
-  htim16.Init.Prescaler = HAL_RCC_GetPCLK1Freq()/1000;
+  htim16.Init.Prescaler = HAL_RCC_GetPCLK1Freq()/1000000;
   htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim16.Init.Period = 0xFFFF;
-  htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim16.Init.Period = 0x03D2;
   HAL_TIM_Base_Init(&htim16);
 
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   HAL_TIMEx_MasterConfigSynchronization(&htim16, &sMasterConfig);
 	
+	/* Peripheral interrupt init*/
+  HAL_NVIC_SetPriority(TIM16_IRQn, 2, 0);
+  HAL_NVIC_EnableIRQ(TIM16_IRQn);
+	
 	HAL_TIM_Base_Start_IT(&htim16);
 }
-
 
 /**
   * @brief  This function is executed in case of error occurrence.
