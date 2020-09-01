@@ -54,9 +54,6 @@ TIM_HandleTypeDef htim16;
 extern uint8_t UARTRxBuf[NumOfPorts][MSG_RX_BUF_SIZE];
 
 /* External function prototypes ----------------------------------------------*/
-//extern void vMBPTimerISR( void );
-//extern void prvvMBPUSART1_TC_ISR( void );
-//extern void prvvMBPUSART1_RXNE_ISR( void );
 extern TaskHandle_t xCommandConsoleTaskHandle;
 extern void NotifyMessagingTaskFromISR(uint8_t port);
 
@@ -251,17 +248,6 @@ void TIM16_IRQHandler(void)
 
 /*-----------------------------------------------------------*/
 
-//void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-//{
-//	if ( htim->Instance==TIM16 )
-//		{
-//			
-//			vMBPTimerISR();                           // Call Modbus protocol timer ISR
-//		}
-//		
-//}
-
-/*-----------------------------------------------------------*/
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
@@ -274,17 +260,9 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 	/* Give back the mutex. */
 	xSemaphoreGiveFromISR( PxTxSemaphoreHandle[GetPort(huart)], &( xHigherPriorityTaskWoken ) );
 	
-//	/* Check if the huart is P_RS485 */
-//	if (huart == P_RS485uart )
-//	{
-//		/* Check the Tx interrupt of Modbus protocol */
-//		if (H1DR1_Mode==RTU || H1DR1_Mode==ASCII)
-//		{	
-//			prvvMBPUSART1_TC_ISR();                   // Call Modbus protocol port ISR
-//		}
-//		else
-//		RS485_RECEIVER_EN();                        // Enable receiver mode
-//	}
+
+	
+	RS485_RECEIVER_EN();                        // Enable receiver mode
 
 }
 
@@ -323,14 +301,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		}
 	}
 	
-//	/* Check the RX interrupt of Modbus protocol */
-//	if (H1DR1_Mode==RTU || H1DR1_Mode==ASCII)
-//	{
-//		if (huart==&huart1)
-//		{
-//			prvvMBPUSART1_RXNE_ISR();                 // Call Modbus protocol port ISR
-//		}
-//	}
 	
 	// Check only ports in messaging mode
 	if (portStatus[GetPort(huart)] == FREE || portStatus[GetPort(huart)] == MSG)

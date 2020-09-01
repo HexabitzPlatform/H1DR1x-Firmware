@@ -45,7 +45,7 @@ FlagStatus UartTxReady = RESET;
 
 
 /* MB Port Initialization */
-Module_Status MB_PORT_Init(uint16_t BAUD_RATE, uint32_t DataBitsN, uint32_t PARITY_BIT, uint32_t STOP_BIT)   
+Module_Status MB_PORT_Init(uint32_t BAUD_RATE, uint32_t DataBitsN, uint32_t PARITY_BIT, uint32_t STOP_BIT)   
 {
   huart1.Instance = USART1;
   huart1.Init.BaudRate = BAUD_RATE;
