@@ -147,27 +147,14 @@ extern TIM_HandleTypeDef htim16;
 /* Define TIM16 Init prototypes */
 void MX_TIM16_Init(void);
 
-/* -----------------------------------------------------------------------
-	|														Message Codes	 														 	|
-   ----------------------------------------------------------------------- 
-*/
-#define CODE_H1DR1_MODE            2900
-#define CODE_H1DR1_READ            2901
-#define CODE_H1DR1_WRITE           2902
-#define CODE_H1DR1_MULTIWRITE      2903
-#define CODE_H1DR1_STIMEOUT        2904
+
+
 	
 /* -----------------------------------------------------------------------
 	|																APIs	 																 	|
    ----------------------------------------------------------------------- 
 */
 Module_Status SetupBridgeMode(uint8_t Source_p, uint32_t baud_rate);
-//Module_Status SetupModbusRTU(uint32_t BaudRate, uint32_t ParityBit);
-//Module_Status SetupModbusASCII(uint32_t BaudRate, uint32_t ParityBit);
-//Module_Status ReadModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd, uint8_t NofReg, unsigned short * DataBuffer);
-//Module_Status WriteModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd, uint32_t Data);
-//Module_Status WriteModbusMultiRegisters(uint8_t SlaveAdd, uint32_t RegAdd, uint8_t NofReg, uint16_t *Data);
-//Module_Status SetTimeOut(uint16_t MiliSeconds);
 
 
 /* -----------------------------------------------------------------------
