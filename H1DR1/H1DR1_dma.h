@@ -1,5 +1,5 @@
 /*
-    BitzOS (BOS) V0.2.3 - Copyright (C) 2017-2019 Hexabitz
+    BitzOS (BOS) V0.2.4 - Copyright (C) 2017-2021 Hexabitz
     All rights reserved
 		
     File Name     : H1DR1_dma.h
