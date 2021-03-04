@@ -1,0 +1,6 @@
+H1DR1_timers.c:55:6:TIM_USEC_Init	32	static
+H1DR1_timers.c:82:6:TIM_MSEC_Init	32	static
+H1DR1_timers.c:107:6:StartMicroDelay	8	static
+H1DR1_timers.c:127:6:StartMilliDelay	8	static
+H1DR1_timers.c:149:6:MX_TIM16_Init	32	static
+H1DR1_timers.c:179:6:Error_Handler	0	static
