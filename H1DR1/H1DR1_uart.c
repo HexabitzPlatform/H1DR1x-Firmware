@@ -33,38 +33,51 @@
   */
 	
 /*
-		MODIFIED by Hexabitz for BitzOS (BOS) V0.1.5 - Copyright (C) 2017-2018 Hexabitz
+		MODIFIED by Hexabitz for BitzOS (BOS) V0.2.4 - Copyright (C) 2017-2021 Hexabitz
     All rights reserved
 */
 
 /* Includes ------------------------------------------------------------------*/
 #include "BOS.h"
 
-
 FlagStatus UartRxReady = RESET;
 FlagStatus UartTxReady = RESET;
 
+#ifndef __N
+	 uint16_t arrayPortsDir[MaxNumOfModules];									/* Array ports directions */
+#else
+	 uint16_t arrayPortsDir[__N];
+#endif 
+
+/* MB Port Initialization */
+Module_Status MB_PORT_Init(uint32_t BAUD_RATE, uint32_t DataBitsN, uint32_t PARITY_BIT, uint32_t STOP_BIT)   
+{
+  huart1.Instance = USART1;
+  huart1.Init.BaudRate = BAUD_RATE;
+  huart1.Init.WordLength = DataBitsN;
+  huart1.Init.StopBits = STOP_BIT;
+  huart1.Init.Parity = PARITY_BIT;
+  huart1.Init.Mode = UART_MODE_TX_RX;
+  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart1.Init.OneBitSampling = UART_ONEBIT_SAMPLING_DISABLED;
+  huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_RXOVERRUNDISABLE_INIT;
+	huart1.AdvancedInit.OverrunDisable = UART_ADVFEATURE_OVERRUN_DISABLE;
+	
+	HAL_UART_Init(&huart1);
+	#if _P6pol_reversed
+		huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_SWAP_INIT;
+		huart1.AdvancedInit.Swap = UART_ADVFEATURE_SWAP_ENABLE;
+	  HAL_UART_Init(&huart1);
+	#endif	
+return H1DR1_OK;
+}
 
 /* USART1 init function */
 #ifdef _Usart1
 void MX_USART1_UART_Init(void)
 {
-  huart1.Instance = USART1;
-  huart1.Init.BaudRate = DEF_ARRAY_BAUDRATE;
-  huart1.Init.WordLength = UART_WORDLENGTH_8B;
-  huart1.Init.StopBits = UART_STOPBITS_1;
-  huart1.Init.Parity = UART_PARITY_NONE;
-  huart1.Init.Mode = UART_MODE_TX_RX;
-  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
-  huart1.Init.OneBitSampling = UART_ONEBIT_SAMPLING_DISABLED;
-  huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-	HAL_UART_Init(&huart1);
-	#if _P4pol_reversed
-		huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_SWAP_INIT;
-		huart1.AdvancedInit.Swap = UART_ADVFEATURE_SWAP_ENABLE;
-	  HAL_UART_Init(&huart1);
-	#endif	
+	MB_PORT_Init(9600, UART_WORDLENGTH_8B, UART_PARITY_NONE, UART_STOPBITS_1);
 }
 #endif
 
@@ -83,7 +96,7 @@ void MX_USART2_UART_Init(void)
   huart2.Init.OneBitSampling = UART_ONEBIT_SAMPLING_DISABLED;
   huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
 	HAL_UART_Init(&huart2);
-	#if _P1pol_reversed
+	#if _P2pol_reversed
 		huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_SWAP_INIT;
 		huart2.AdvancedInit.Swap = UART_ADVFEATURE_SWAP_ENABLE;
 	  HAL_UART_Init(&huart2);
@@ -106,7 +119,7 @@ void MX_USART3_UART_Init(void)
   huart3.Init.OneBitSampling = UART_ONEBIT_SAMPLING_DISABLED;
   huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
 	HAL_UART_Init(&huart3);
-	#if _P3pol_reversed
+	#if _P4pol_reversed
 		huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_SWAP_INIT;
 		huart3.AdvancedInit.Swap = UART_ADVFEATURE_SWAP_ENABLE;
 	  HAL_UART_Init(&huart3);
@@ -129,7 +142,7 @@ void MX_USART4_UART_Init(void)
   huart4.Init.OneBitSampling = UART_ONEBIT_SAMPLING_DISABLED;
   huart4.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
 	HAL_UART_Init(&huart4);
-	#if _P6pol_reversed	
+	#if _P1pol_reversed	
 		huart4.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_SWAP_INIT;
 		huart4.AdvancedInit.Swap = UART_ADVFEATURE_SWAP_ENABLE;
 	  HAL_UART_Init(&huart4);
@@ -175,13 +188,14 @@ void MX_USART6_UART_Init(void)
   huart6.Init.OneBitSampling = UART_ONEBIT_SAMPLING_DISABLED;
   huart6.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
 	HAL_UART_Init(&huart6);
-	#if _P2pol_reversed
+	#if _P3pol_reversed
 		huart6.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_SWAP_INIT;
 		huart6.AdvancedInit.Swap = UART_ADVFEATURE_SWAP_ENABLE;
 	  HAL_UART_Init(&huart6);
 	#endif	
 }
 #endif
+
 
 void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 {
@@ -417,6 +431,26 @@ HAL_StatusTypeDef writePxITMutex(uint8_t port, char *buffer, uint16_t n, uint32_
 	return result;
 }
 
+/* --- Non-blocking (DMA-based) write protected with a semaphore --- 
+*/
+HAL_StatusTypeDef writePxDMAMutex(uint8_t port, char *buffer, uint16_t n, uint32_t mutexTimeout)
+{
+	HAL_StatusTypeDef result = HAL_ERROR; 
+	UART_HandleTypeDef* hUart = GetUart(port);
+
+	if (hUart != NULL) {	
+		/* Wait for the mutex to be available. */
+		if (osSemaphoreWait(PxTxSemaphoreHandle[port], mutexTimeout) == osOK) {
+			/* Setup TX DMA on this port */
+			DMA_MSG_TX_Setup(hUart);
+			/* Transmit the message */
+			result = HAL_UART_Transmit_DMA(hUart, (uint8_t *)buffer, n);
+		}
+	}
+	
+	return result;
+}
+
 /* --- Update baudrate for this port --- 
 */
 BOS_Status UpdateBaudrate(uint8_t port, uint32_t baudrate)
@@ -428,6 +462,78 @@ BOS_Status UpdateBaudrate(uint8_t port, uint32_t baudrate)
 	HAL_UART_Init(huart);
 	
 	return result;
+}
+
+/* --- Get the UART for a given port. 
+*/
+UART_HandleTypeDef* GetUart(uint8_t port)
+{
+	switch (port)
+	{
+	#ifdef _P1
+		case P1 : 
+			return P1uart;	
+	#endif
+	#ifdef _P2
+		case P2 :
+			return P2uart;
+	#endif
+	#ifdef _P3
+		case P3 :
+			return P3uart;
+	#endif
+	#ifdef _P4
+		case P4 :
+			return P4uart;
+	#endif
+	#ifdef _P5
+		case P5 :
+			return P5uart;
+	#endif
+	#ifdef _P6
+		case P6 :
+			return P6uart;
+	#endif
+	#ifdef _P7
+		case P7 :
+			return P7uart;
+	#endif
+	#ifdef _P8
+		case P8 :
+			return P8uart;
+	#endif
+	#ifdef _P9
+		case P9 :
+			return P9uart;
+	#endif
+	#ifdef _P10
+		case P10 :
+			return P10uart;
+	#endif
+		default:
+			return 0;
+	}		
+}
+
+/*-----------------------------------------------------------*/
+
+/* --- Swap UART pins ( NORMAL | REVERSED )--- 
+*/
+void SwapUartPins(UART_HandleTypeDef *huart, uint8_t direction)
+{
+	if (huart != NULL) {
+		if (direction == REVERSED) {
+			arrayPortsDir[myID-1] |= (0x8000>>(GetPort(huart)-1));		/* Set bit to one */
+			huart->AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_SWAP_INIT;
+			huart->AdvancedInit.Swap = UART_ADVFEATURE_SWAP_ENABLE;
+			HAL_UART_Init(huart);
+		} else if (direction == NORMAL) {
+			arrayPortsDir[myID-1] &= (~(0x8000>>(GetPort(huart)-1)));		/* Set bit to zero */
+			huart->AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_SWAP_INIT;
+			huart->AdvancedInit.Swap = UART_ADVFEATURE_SWAP_DISABLE;
+			HAL_UART_Init(huart);		
+		}
+	}
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

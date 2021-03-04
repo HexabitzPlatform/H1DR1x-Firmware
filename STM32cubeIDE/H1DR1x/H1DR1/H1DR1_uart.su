@@ -1,0 +1,16 @@
+H1DR1_uart.c:53:15:MB_PORT_Init	16	static
+H1DR1_uart.c:78:6:MX_USART1_UART_Init	8	static
+H1DR1_uart.c:86:6:MX_USART2_UART_Init	8	static
+H1DR1_uart.c:109:6:MX_USART3_UART_Init	8	static
+H1DR1_uart.c:132:6:MX_USART4_UART_Init	8	static
+H1DR1_uart.c:155:6:MX_USART5_UART_Init	8	static
+H1DR1_uart.c:178:6:MX_USART6_UART_Init	8	static
+H1DR1_uart.c:200:6:HAL_UART_MspInit	80	static
+H1DR1_uart.c:469:21:GetUart	0	static
+H1DR1_uart.c:364:19:readPxMutex	32	static
+H1DR1_uart.c:384:19:writePxMutex	32	static
+H1DR1_uart.c:404:19:readPxITMutex	32	static
+H1DR1_uart.c:420:19:writePxITMutex	32	static
+H1DR1_uart.c:436:19:writePxDMAMutex	32	static
+H1DR1_uart.c:456:12:UpdateBaudrate	8	static
+H1DR1_uart.c:522:6:SwapUartPins	16	static

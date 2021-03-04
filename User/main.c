@@ -32,13 +32,12 @@
   */
 	
 /*
-		MODIFIED by Hexabitz for BitzOS (BOS) V0.1.5 - Copyright (C) 2017-2018 Hexabitz
+		MODIFIED by Hexabitz for BitzOS (BOS) V0.2.4 - Copyright (C) 2017-2021 Hexabitz
     All rights reserved
 */
 
 /* Includes ------------------------------------------------------------------*/
 #include "BOS.h"
-
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -63,8 +62,8 @@ int main(void)
 
   /* Initialize all user peripherals */
 
-	/* Initialize BitzOS */
-	BOS_Init();
+  /* Initialize BitzOS */
+  BOS_Init();
 
   /* Call init function for freertos objects (in freertos.c) */
   MX_FREERTOS_Init();
@@ -86,14 +85,13 @@ int main(void)
 
 /*-----------------------------------------------------------*/
 
-/* FrontEndTask function */
-void FrontEndTask(void * argument)
+/* User Task */
+void UserTask(void * argument)
 {
-	StartScastDMAStream(P4, 0, P_RS485, 0, BIDIRECTIONAL, 0xFFFFFFFF, 0xFFFFFFFF, false);
-	
-  /* Infinite loop */
-  for(;;)
-  {
+	/* Infinite loop */
+	for(;;)
+	{
+
 
 	}
 }

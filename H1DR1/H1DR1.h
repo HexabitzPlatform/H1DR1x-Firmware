@@ -1,5 +1,5 @@
 /*
-    BitzOS (BOS) V0.1.5 - Copyright (C) 2017-2018 Hexabitz
+    BitzOS (BOS) V0.2.4 - Copyright (C) 2017-2021 Hexabitz
     All rights reserved
 		
     File Name     : H1DR1.h
@@ -13,17 +13,24 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "BOS.h"
+#include "H1DR1_dma.h"	
+#include "H1DR1_MemoryMap.h"	
 #include "H1DR1_uart.h"	
 #include "H1DR1_gpio.h"	
-#include "H1DR1_dma.h"	
 	
 	
 /* Exported definitions -------------------------------------------------------*/
 
+/* Define state enum */
+enum Module_Mode{IDLE = 0x00, BRIDGE, RTU, ASCII};
+enum MB_Parity{MB_PARITY_O, MB_PARITY_E, MB_PARITY_N};
+enum MB_DataBits{MB_DATABITS_7, MB_DATABITS_8, MB_DATABITS_9};
+enum MB_StopBit{MB_STOPBIT_1 = 0x01, MB_STOPBIT_2};
+
 #define	modulePN		_H1DR1
 
 /* Port-related definitions */
-#define	NumOfPorts		6
+#define	NumOfPorts		6             /* to remove P6 from BOS ports */
 #define P_PROG 				P2						/* ST factory bootloader UART */
 
 /* Define available ports */
@@ -35,7 +42,7 @@
 #define _P6 
 
 /* Define available USARTs */
-#define _Usart1 1
+#define _Usart1 1   
 #define _Usart2 1
 #define _Usart3 1
 #define _Usart4 1
@@ -43,12 +50,12 @@
 #define _Usart6	1
 
 /* Port-UART mapping */
-#define P1uart 			&huart5
+#define P1uart 			&huart4
 #define P2uart 			&huart2	
 #define P3uart 			&huart6
 #define P4uart 			&huart3
-#define P5uart 			&huart1	
-#define P6uart 			&huart4	
+#define P5uart 			&huart5	
+#define P6uart 			&huart1	
 #define P_RS485uart 		P6uart
 
 /* Port Definitions */
@@ -92,24 +99,29 @@
 #ifdef H1DR1
 	#define _P_RS485 		_P6
 	#define P_RS485 		P6
-	#define	RS485_RE_PIN		GPIO_PIN_7
-	#define	RS485_DE_PIN		GPIO_PIN_0
-	#define	RS485_RE_PORT		GPIOA
-	#define	RS485_DE_PORT		GPIOB
+	#define	RS485_RE_DE_PIN		GPIO_PIN_12
+	#define	RS485_RE_DE_PORT		GPIOA
+	// \RE_DE = 0 Enable receiver output
+	#define	RS485_RECEIVER_EN()		HAL_GPIO_WritePin(RS485_RE_DE_PORT, RS485_RE_DE_PIN, GPIO_PIN_RESET)
+	// \RE_DE = 1 Disable receiver output
+	#define	RS485_RECEIVER_DIS()		HAL_GPIO_WritePin(RS485_RE_DE_PORT, RS485_RE_DE_PIN, GPIO_PIN_SET)
 #endif
 
-/* H01R0_Status Type Definition */  
+/* Module_Status Type Definition */
+#define NUM_MODULE_PARAMS		1
+
+/* H1DR1_Status Type Definition */  
 typedef enum 
 {
   H1DR1_OK = 0,
 	H1DR1_ERR_UnknownMessage = 1,
+	H1DR1_ERR_WrongParams,
 	H1DR1_ERROR = 255
 } Module_Status;
 
 /* Indicator LED */
 #define _IND_LED_PORT		GPIOB
 #define _IND_LED_PIN		GPIO_PIN_14
-
 
 /* Export UART variables */
 extern UART_HandleTypeDef huart1;
@@ -120,6 +132,7 @@ extern UART_HandleTypeDef huart5;
 extern UART_HandleTypeDef huart6;
 
 /* Define UART Init prototypes */
+Module_Status MB_PORT_Init(uint32_t BaudRate, uint32_t DataBitsN, uint32_t ParityBit, uint32_t StopBitN);
 extern void MX_USART1_UART_Init(void);
 extern void MX_USART2_UART_Init(void);
 extern void MX_USART3_UART_Init(void);
@@ -127,12 +140,12 @@ extern void MX_USART4_UART_Init(void);
 extern void MX_USART5_UART_Init(void);
 extern void MX_USART6_UART_Init(void);
 
+/* Export TIM16 variables */
+extern TIM_HandleTypeDef htim16;
+#define TIMERID_MB_TIMER   0xFF
 
-
-/* -----------------------------------------------------------------------
-	|														Message Codes	 														 	|
-   ----------------------------------------------------------------------- 
-*/
+/* Define TIM16 Init prototypes */
+void MX_TIM16_Init(void);
 
 
 
@@ -141,14 +154,13 @@ extern void MX_USART6_UART_Init(void);
 	|																APIs	 																 	|
    ----------------------------------------------------------------------- 
 */
-
+Module_Status SetupBridgeMode(uint8_t Source_p, uint32_t baud_rate);
 
 
 /* -----------------------------------------------------------------------
 	|															Commands																 	|
    ----------------------------------------------------------------------- 
 */
-
 
 
 
