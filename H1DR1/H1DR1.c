@@ -279,10 +279,6 @@ void RegisterModuleCLICommands(void)
 
 }
 
-void ExecuteMonitor(void){
-
-}
-
 /*-----------------------------------------------------------*/
 
 /* --- Get the port for a given UART. 
