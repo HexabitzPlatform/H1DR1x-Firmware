@@ -1,6 +1,5 @@
 ################################################################################
 # Automatically-generated file. Do not edit!
-# Toolchain: GNU Tools for STM32 (9-2020-q2-update)
 ################################################################################
 
 -include ../makefile.init
@@ -17,16 +16,6 @@ RM := rm -rf
 -include Thirdparty/Middleware/FreeRTOS/Source/subdir.mk
 -include Thirdparty/CMSIS/Device/ST/STM32F0xx/Source/Templates/subdir.mk
 -include H1DR1/subdir.mk
--include Debug/User/subdir.mk
--include Debug/Thirdparty/STM32F0xx_HAL_Driver/Src/subdir.mk
--include Debug/Thirdparty/Middleware/FreeRTOS/Source/portable/MemMang/subdir.mk
--include Debug/Thirdparty/Middleware/FreeRTOS/Source/portable/GCC/ARM_CM0/subdir.mk
--include Debug/Thirdparty/Middleware/FreeRTOS/Source/CMSIS_RTOS/subdir.mk
--include Debug/Thirdparty/Middleware/FreeRTOS/Source/subdir.mk
--include Debug/Thirdparty/CMSIS/Device/ST/STM32F0xx/Source/Templates/subdir.mk
--include Debug/H1DR1/subdir.mk
--include Debug/BOS/subdir.mk
--include Debug/subdir.mk
 -include BOS/subdir.mk
 -include subdir.mk
 -include objects.mk
@@ -44,12 +33,6 @@ endif
 endif
 
 -include ../makefile.defs
-
-OPTIONAL_TOOL_DEPS := \
-$(wildcard ../makefile.defs) \
-$(wildcard ../makefile.init) \
-$(wildcard ../makefile.targets) \
-
 
 BUILD_ARTIFACT_NAME := H1DR1x
 BUILD_ARTIFACT_EXTENSION := elf
@@ -78,22 +61,22 @@ all:
 main-build: H1DR1x.elf secondary-outputs
 
 # Tool invocations
-H1DR1x.elf: $(OBJS) $(USER_OBJS) D:\Hexabitz\for\ Release\Modules\ firmware\H1DR1x\STM32cubeIDE\STM32F091RCTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+H1DR1x.elf: $(OBJS) $(USER_OBJS) D:\Hexabitz\for\ Release\Modules\ firmware\H1DR1x\STM32cubeIDE\STM32F091RCTX_FLASH.ld
 	arm-none-eabi-gcc -o "H1DR1x.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0 -T"D:\Hexabitz\for Release\Modules firmware\H1DR1x\STM32cubeIDE\STM32F091RCTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="H1DR1x.map" -Wl,--gc-sections -static  -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+default.size.stdout: $(EXECUTABLES)
 	arm-none-eabi-size  $(EXECUTABLES)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-H1DR1x.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+H1DR1x.list: $(EXECUTABLES)
 	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "H1DR1x.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-H1DR1x.hex: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+H1DR1x.hex: $(EXECUTABLES)
 	arm-none-eabi-objcopy  -O ihex $(EXECUTABLES) "H1DR1x.hex"
 	@echo 'Finished building: $@'
 	@echo ' '

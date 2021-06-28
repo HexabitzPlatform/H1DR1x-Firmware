@@ -1,10 +1,10 @@
 /*
-    BitzOS (BOS) V0.2.4 - Copyright (C) 2017-2021 Hexabitz
+    BitzOS (BOS) V0.2.5 - Copyright (C) 2017-2021 Hexabitz
     All rights reserved
 		
     File Name     : H1DR1.h
     Description   : Header file for module H1DR1.
-										RS-485 Serial Transceiver (MAX14840EASA+)
+					RS-485 Serial Transceiver (MAX14840EASA+)
 */
 	
 /* Define to prevent recursive inclusion -------------------------------------*/
