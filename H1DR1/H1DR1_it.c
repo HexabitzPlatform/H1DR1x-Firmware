@@ -277,7 +277,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	if (portStatus[GetPort(huart)] == FREE || portStatus[GetPort(huart)] == MSG)
 	{
 		// Circular buffer is full. Set a global persistant flag via BOS events and a temporary flag via portStatus.
-		BOS.overrun = GetPort(huart);
+		BOSMessaging.overrun = GetPort(huart);
 		portStatus[GetPort(huart)] = OVERRUN;
 		// Clear the circular RX buffer
 		memset(&UARTRxBuf[GetPort(huart)-1][0], 0, MSG_RX_BUF_SIZE);
