@@ -1,8 +1,0 @@
-H1DR1.c:73:6:SystemClock_Config	128	static
-H1DR1.c:121:9:SaveToRO	72	static
-H1DR1.c:217:9:ClearROtopology	8	static
-H1DR1.c:228:6:Module_Init	8	static
-H1DR1.c:277:6:RegisterModuleCLICommands	0	static
-H1DR1.c:286:9:GetPort	0	static
-H1DR1.c:311:15:SetupBridgeMode	16	static
-H1DR1.c:247:15:Module_MessagingTask	24	static
