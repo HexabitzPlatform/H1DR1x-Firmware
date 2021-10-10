@@ -1,9 +1,10 @@
 /*
-    BitzOS (BOS) V0.2.4 - Copyright (C) 2017-2021 Hexabitz
-    All rights reserved
+ BitzOS (BOS) V0.2.5 - Copyright (C) 2017-2021 Hexabitz
+ All rights reserved
 		
-    File Name     : H1DR1_MemoryMap.h
-    Description   : Module MCU memory map header file.
+ File Name     : H1DR1_MemoryMap.h
+ Description   : Module MCU memory map header file.
+
 */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -15,9 +16,9 @@
 #endif
 
 /* Memory map: - STM32F091CB
-				- Application: 0x08000000 - 0x0801D7FF >> 118 KB
-		 - Read-only (RO): 0x0801D800 - 0x0801DFFF >> 2 KB, used to store topology information and Command Snippets
-		- Emulated EEPROM: 0x0801E000 - 0x0801FFFF >> 8 KB, fits 1024 16-bit variables in 2 main-duplicate pages (A and B)
+ - Application: 0x08000000 - 0x0801D7FF >> 118 KB
+ - Read-only (RO): 0x0801D800 - 0x0801DFFF >> 2 KB, used to store topology information and Command Snippets
+ - Emulated EEPROM: 0x0801E000 - 0x0801FFFF >> 8 KB, fits 1024 16-bit variables in 2 main-duplicate pages (A and B)
 */
 #define APP_START_ADDRESS  		((uint32_t)0x08000000) 
 #define RO_START_ADDRESS  		((uint32_t)0x0801D800) 

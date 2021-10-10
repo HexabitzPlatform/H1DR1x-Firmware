@@ -1,5 +1,0 @@
-H1DR1_gpio.c:64:6:IND_LED_Init	32	static
-H1DR1_gpio.c:51:6:GPIO_Init	32	static
-H1DR1_gpio.c:76:6:RS485_DE_RE_Init	32	static
-H1DR1_gpio.c:146:12:GetPortGPIOs	24	static
-H1DR1_gpio.c:92:9:IsFactoryReset	88	static
