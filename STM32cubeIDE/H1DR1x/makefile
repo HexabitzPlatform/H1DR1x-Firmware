@@ -61,8 +61,8 @@ all:
 main-build: H1DR1x.elf secondary-outputs
 
 # Tool invocations
-H1DR1x.elf: $(OBJS) $(USER_OBJS) D:\Hexabitz\for\ Release\Modules\ firmware\H1DR1x\STM32cubeIDE\STM32F091CBUX_FLASH.ld
-	arm-none-eabi-gcc -o "H1DR1x.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0 -T"D:\Hexabitz\for Release\Modules firmware\H1DR1x\STM32cubeIDE\STM32F091CBUX_FLASH.ld" --specs=nosys.specs -Wl,-Map="H1DR1x.map" -Wl,--gc-sections -static  -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+H1DR1x.elf: $(OBJS) $(USER_OBJS) D:\Hexabitz\ release\H1DR1x\STM32cubeIDE\STM32F091CBUX_FLASH.ld
+	arm-none-eabi-gcc -o "H1DR1x.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0 -T"D:\Hexabitz release\H1DR1x\STM32cubeIDE\STM32F091CBUX_FLASH.ld" --specs=nosys.specs -Wl,-Map="H1DR1x.map" -Wl,--gc-sections -static  -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
