@@ -17,8 +17,8 @@
 #include "H1DR1_MemoryMap.h"	
 #include "H1DR1_uart.h"	
 #include "H1DR1_gpio.h"	
-	
-	
+#include "H1DR1_eeprom.h"
+#include "H1DR1_inputs.h"
 /* Exported definitions -------------------------------------------------------*/
 
 /* Define state enum */
@@ -155,7 +155,8 @@ void MX_TIM16_Init(void);
    ----------------------------------------------------------------------- 
 */
 Module_Status SetupBridgeMode(uint8_t Source_p, uint32_t baud_rate);
-
+void SetupPortForRemoteBootloaderUpdate(uint8_t port);
+void remoteBootloaderUpdate(uint8_t src,uint8_t dst,uint8_t inport,uint8_t outport);
 
 /* -----------------------------------------------------------------------
 	|															Commands																 	|
