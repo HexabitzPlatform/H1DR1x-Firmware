@@ -1,5 +1,5 @@
 /*
-    BitzOS (BOS) V0.2.5 - Copyright (C) 2017-2021 Hexabitz
+    BitzOS (BOS) V0.2.6 - Copyright (C) 2017-2022 Hexabitz
     All rights reserved
 		
     File Name     : H1DR1.h
@@ -17,8 +17,8 @@
 #include "H1DR1_MemoryMap.h"	
 #include "H1DR1_uart.h"	
 #include "H1DR1_gpio.h"	
-	
-	
+#include "H1DR1_eeprom.h"
+#include "H1DR1_inputs.h"
 /* Exported definitions -------------------------------------------------------*/
 
 /* Define state enum */
@@ -155,7 +155,8 @@ void MX_TIM16_Init(void);
    ----------------------------------------------------------------------- 
 */
 Module_Status SetupBridgeMode(uint8_t Source_p, uint32_t baud_rate);
-
+void SetupPortForRemoteBootloaderUpdate(uint8_t port);
+void remoteBootloaderUpdate(uint8_t src,uint8_t dst,uint8_t inport,uint8_t outport);
 
 /* -----------------------------------------------------------------------
 	|															Commands																 	|
