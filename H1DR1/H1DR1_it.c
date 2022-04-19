@@ -11,6 +11,8 @@
 #include "BOS.h"
 #include "H1DR1.h"
 //#include "mbm.h"
+uint8_t temp_length[NumOfPorts] = {0};
+uint8_t temp_index[NumOfPorts] = {0};
 
 /*USER CODE BEGIN 0 */
 extern uint8_t H1DR1_Mode;
