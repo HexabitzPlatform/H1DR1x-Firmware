@@ -27,7 +27,7 @@ extern uint8_t UARTRxBuf[NumOfPorts][MSG_RX_BUF_SIZE];
 /* External function prototypes ----------------------------------------------*/
 extern TaskHandle_t xCommandConsoleTaskHandle;
 extern void NotifyMessagingTaskFromISR(uint8_t port);
-
+extern TaskHandle_t xCommandConsoleTaskHandle; // CLI Task handler.
 
 /******************************************************************************/
 /*            Cortex-M0 Processor Interruption and Exception Handlers         */ 
