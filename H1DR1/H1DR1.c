@@ -1,5 +1,5 @@
 /*
-    BitzOS (BOS) V0.2.6 - Copyright (C) 2017-2022 Hexabitz
+    BitzOS (BOS) V0.2.7 - Copyright (C) 2017-2022 Hexabitz
     All rights reserved
 
     File Name     : H1DR1.c
@@ -305,12 +305,13 @@ void Module_Peripheral_Init(void)
 }
 /*-----------------------------------------------------------*/
 
+
 /* --- H1DR1 message processing task. 
 */
 Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uint8_t dst, uint8_t shift)
 {
 	Module_Status result = H1DR1_OK;
-	
+	uint32_t Br_baud_rate=0;
 	switch (code)
 	{
 		case (CODE_H1DR1_MODE): 
@@ -318,8 +319,9 @@ Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uin
 			{
 				case (BRIDGE):
 					Src_port = cMessage[port-1][1+shift];
-					Br_baud_rate = ( (uint32_t) cMessage[port-1][2+shift] << 24 ) + ( (uint32_t) cMessage[port-1][3+shift] << 16 ) + ( (uint32_t) cMessage[port-1][4+shift] << 8 ) + cMessage[port-1][5+shift];
+					Br_baud_rate = ( (uint32_t) cMessage[port-1][2+shift]  ) + ( (uint32_t) cMessage[port-1][3+shift] << 8 ) + ( (uint32_t) cMessage[port-1][4+shift] << 16 ) + ( (uint32_t)cMessage[port-1][5+shift] <<24);
 					SetupBridgeMode(Src_port,Br_baud_rate);
+
 					break;
 				default :
 					break;		
