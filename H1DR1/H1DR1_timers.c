@@ -1,167 +1,166 @@
 /*
- BitzOS (BOS) V0.2.9 - Copyright (C) 2017-2023 Hexabitz
+ BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H1DR1_timers.c
- Description   : Peripheral timers setup source file.
-
- Required MCU resources :
-
- >> Timer 14 for micro-sec delay.
- >> Timer 15 for milli-sec delay.
-
+ File Name  : H1DR1_timers.c
+ Description: Configures timers and watchdog for delays and PWM.
+ Timers: TIM14 (usec), TIM15 (msec), TIM2-4 (RGB PWM).
+ IWDG: 500 ms timeout watchdog.
  */
 
-
-/* Includes ------------------------------------------------------------------*/
+/* Includes ****************************************************************/
 #include "BOS.h"
 
-
-/*----------------------------------------------------------------------------*/
-/* Configure Timers                                                              */
-/*----------------------------------------------------------------------------*/
-void Error_Handler(void);
-
-
-/* Variables ---------------------------------------------------------*/
-TIM_HandleTypeDef htim14;	/* micro-second delay counter */
-TIM_HandleTypeDef htim15;	/* milli-second delay counter */
+/* Exported Functions ******************************************************/
+void TIM_USEC_Init(void);
+void TIM_MSEC_Init(void);
+void MX_IWDG_Init(void);
 
 
-/*  Micro-seconds timebase init function - TIM14 (16-bit)
-*/
-void TIM_USEC_Init(void)
-{
-  TIM_MasterConfigTypeDef sMasterConfig;
-	
-	/* Peripheral clock enable */
-	__TIM14_CLK_ENABLE();
+/* Exported Variables ******************************************************/
+TIM_HandleTypeDef htim16; /* micro-second delay counter */
+TIM_HandleTypeDef htim17; /* milli-second delay counter */
+IWDG_HandleTypeDef hiwdg;
 
-	/* Peripheral configuration */
-  htim14.Instance = TIM14;
-  htim14.Init.Prescaler = HAL_RCC_GetPCLK1Freq()/1000000;
-  htim14.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim14.Init.Period = 0xFFFF;
-  HAL_TIM_Base_Init(&htim14);
 
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  HAL_TIMEx_MasterConfigSynchronization(&htim14, &sMasterConfig);
-	
-	HAL_TIM_Base_Start(&htim14);
+/***************************************************************************/
+/* Configure Timers ********************************************************/
+/***************************************************************************/
+/* IWDG init function */
+void MX_IWDG_Init(void) {
+
+	/* Reload Value = [(Time * 32 KHz) / (4 * 2^(pr) * 1000)] - 1
+	 * RL = [(500 mS * 32000) / (4 * 2^1 * 1000)]  - 1 = 2000 - 1 = 1999
+	 * timeout time = 500 mS
+	 * Pre-scaler = 8
+	 * Reload Value = 1999
+	 *  */
+
+	hiwdg.Instance = IWDG;
+	hiwdg.Init.Prescaler = IWDG_PRESCALER_8;
+	hiwdg.Init.Window = IWDG_WINDOW_DISABLE;
+	hiwdg.Init.Reload = 1999;
+
+	HAL_IWDG_Init(&hiwdg);
+
 }
 
-/*-----------------------------------------------------------*/
+/***************************************************************************/
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *timHandle) {
 
-/*-----------------------------------------------------------*/
+	GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+	if (timHandle->Instance == TIM2) {
 
-/*  Milli-seconds timebase init function - TIM15 (16-bit)
-*/
-void TIM_MSEC_Init(void)
-{
-  TIM_MasterConfigTypeDef sMasterConfig;
-	
-	/* Peripheral clock enable */
-	__TIM15_CLK_ENABLE();
-
-	/* Peripheral configuration */
-  htim15.Instance = TIM15;
-  htim15.Init.Prescaler = HAL_RCC_GetPCLK1Freq()/1000;
-  htim15.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim15.Init.Period = 0xFFFF;
-  HAL_TIM_Base_Init(&htim15);
-
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  HAL_TIMEx_MasterConfigSynchronization(&htim15, &sMasterConfig);
-	
-	HAL_TIM_Base_Start(&htim15);
-}
-
-/*-----------------------------------------------------------*/
-
-/* --- Load and start micro-second delay counter --- 
-*/
-void StartMicroDelay(uint16_t Delay)
-{
-	uint32_t t0=0;
-
-	portENTER_CRITICAL();
-	
-	if (Delay)
-	{
-		t0 = htim14.Instance->CNT;
-
-		while(htim14.Instance->CNT - t0 <= Delay) {};
+		__HAL_RCC_GPIOA_CLK_ENABLE();
+		/**TIM2 GPIO Configuration
+		 PA15     ------> TIM2_CH1
+		 */
+		GPIO_InitStruct.Pin = RGB_RED_PIN;
+		GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+		GPIO_InitStruct.Alternate = GPIO_AF2_TIM2;
+		HAL_GPIO_Init(RGB_RED_PORT, &GPIO_InitStruct);
 	}
-	
-	portEXIT_CRITICAL();
-}
 
-/*-----------------------------------------------------------*/
+	else if (timHandle->Instance == TIM3) {
 
-/* --- Load and start milli-second delay counter --- 
-*/
-void StartMilliDelay(uint16_t Delay)
-{
-	uint32_t t0=0;
-	
-	portENTER_CRITICAL();
-	
-	if (Delay)
-	{
-		t0 = htim15.Instance->CNT;
-
-		while(htim15.Instance->CNT - t0 <= Delay) {};
+		__HAL_RCC_GPIOA_CLK_ENABLE();
+		/**TIM3 GPIO Configuration
+		 PA6     ------> TIM3_CH1
+		 */
+		GPIO_InitStruct.Pin = RGB_BLUE_PIN;
+		GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+		GPIO_InitStruct.Alternate = GPIO_AF1_TIM3;
+		HAL_GPIO_Init(RGB_BLUE_PORT, &GPIO_InitStruct);
 	}
-	
-	portEXIT_CRITICAL();
+
+	else if (timHandle->Instance == TIM4) {
+
+		__HAL_RCC_GPIOB_CLK_ENABLE();
+		/**TIM4 GPIO Configuration
+		 PB7     ------> TIM4_CH2
+		 */
+		GPIO_InitStruct.Pin = RGB_GREEN_PIN;
+		GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+		GPIO_InitStruct.Alternate = GPIO_AF9_TIM4;
+		HAL_GPIO_Init(RGB_GREEN_PORT, &GPIO_InitStruct);
+	}
 }
-/*-----------------------------------------------------------*/
 
-/*----------------------------------------------------------------------------*/
-/* Configure TIM16                                                             */
-/*----------------------------------------------------------------------------*/
-
-/* TIM16 init function */
-void MX_TIM16_Init(void)
-{
-  TIM_MasterConfigTypeDef sMasterConfig;
-	
-	/* Peripheral clock enable */
+/***************************************************************************/
+/* Micro-seconds timebase init function - TIM16 (16-bit) */
+void TIM_USEC_Init(void) {
 	__TIM16_CLK_ENABLE();
 
-	/* Peripheral configuration */
-  htim16.Instance = TIM16;
-  htim16.Init.Prescaler = HAL_RCC_GetPCLK1Freq()/1000000;
-  htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim16.Init.Period = 0x03D2;
-  HAL_TIM_Base_Init(&htim16);
+	htim16.Instance = TIM16;
+	htim16.Init.Prescaler = 47;
+	htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
+	htim16.Init.Period = 0XFFFF;
+	htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	htim16.Init.RepetitionCounter = 0;
+	htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+	HAL_TIM_Base_Init(&htim16);
 
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  HAL_TIMEx_MasterConfigSynchronization(&htim16, &sMasterConfig);
-	
-	/* Peripheral interrupt init*/
-  HAL_NVIC_SetPriority(TIM16_IRQn, 2, 0);
-  HAL_NVIC_EnableIRQ(TIM16_IRQn);
-	
-	HAL_TIM_Base_Start_IT(&htim16);
+	HAL_TIM_Base_Start(&htim16);
+
 }
 
-/**
-  * @brief  This function is executed in case of error occurrence.
-  * @param  None
-  * @retval None
-  */
-/*void Error_Handler(void)
-{
-  /* USER CODE BEGIN Error_Handler */
-  /* User can add his own implementation to report the HAL error return state */
-/* while(1)
-  {
-  }
-  /* USER CODE END Error_Handler */ 
-/*}
+/***************************************************************************/
+/* Milli-seconds timebase init function - TIM17 (16-bit) */
+void TIM_MSEC_Init(void) {
 
-/************************ (C) COPYRIGHT HEXABITZ *****END OF FILE****/
+	__TIM17_CLK_ENABLE();
+
+	htim17.Instance = TIM17;
+	htim17.Init.Prescaler = 47999;
+	htim17.Init.CounterMode = TIM_COUNTERMODE_UP;
+	htim17.Init.Period = 0xFFFF;
+	htim17.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	htim17.Init.RepetitionCounter = 0;
+	htim17.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+	HAL_TIM_Base_Init(&htim17);
+
+	HAL_TIM_Base_Start(&htim17);
+}
+
+/***************************************************************************/
+/* Load and start micro-second delay counter */
+void StartMicroDelay(uint16_t Delay) {
+	uint32_t t0 = 0;
+
+	portENTER_CRITICAL();
+
+	if (Delay) {
+		t0 = htim16.Instance->CNT;
+
+		while (htim16.Instance->CNT - t0 <= Delay) {
+		};
+	}
+
+	portEXIT_CRITICAL();
+}
+
+/***************************************************************************/
+/* Load and start milli-second delay counter */
+void StartMilliDelay(uint16_t Delay) {
+	uint32_t t0 = 0;
+
+	portENTER_CRITICAL();
+
+	if (Delay) {
+		t0 = htim17.Instance->CNT;
+
+		while (htim17.Instance->CNT - t0 <= Delay) {
+		};
+	}
+
+	portEXIT_CRITICAL();
+}
+
+/***************************************************************************/
+/***************** (C) COPYRIGHT HEXABITZ ***** END OF FILE ****************/
