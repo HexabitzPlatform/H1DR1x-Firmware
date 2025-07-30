@@ -451,7 +451,7 @@ void Module_Peripheral_Init(void) {
 	/* Array ports */
 	MX_USART1_UART_Init();
 	MX_USART2_UART_Init();
-	MX_USART3_UART_Init();
+//	MX_USART3_UART_Init();
 	MX_USART4_UART_Init();
 	MX_USART5_UART_Init();
 	MX_USART6_UART_Init();
@@ -504,7 +504,7 @@ uint8_t GetPort(UART_HandleTypeDef *huart) {
 		return P1;
 	else if (huart->Instance == USART2)
 		return P2;
-	else if (huart->Instance == USART3)
+	else if (huart->Instance == USART6)
 		return P3;
 	else if (huart->Instance == USART1)
 		return P4;

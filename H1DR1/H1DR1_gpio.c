@@ -68,7 +68,7 @@ uint8_t IsFactoryReset(void){
 	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
 	GPIO_InitStruct.Pin =P_last_RX_Pin;
 	HAL_GPIO_Init((GPIO_TypeDef* )P_last_RX_Port,&GPIO_InitStruct);
-	
+
 	/* Check for factory reset conditions */
 	HAL_GPIO_WritePin((GPIO_TypeDef* )P1_TX_Port,P1_TX_Pin,GPIO_PIN_RESET);
 	Delay_ms_no_rtos(5);
