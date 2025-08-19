@@ -192,71 +192,51 @@ BOS_Status SwitchStreamDMAToMsg(uint8_t port){
 
 	return Status;
 }
-
 /***************************************************************************/
-void CRC_Init(void){
-	hcrc.Instance = CRC;
-	hcrc.Init.CRCLength = CRC_POLYLENGTH_8B; // Do not change this since it is used for message CRC8
-	hcrc.Init.DefaultInitValueUse = DEFAULT_INIT_VALUE_ENABLE;
-	hcrc.Init.DefaultPolynomialUse = DEFAULT_POLYNOMIAL_ENABLE;
-	hcrc.Init.InputDataInversionMode = CRC_INPUTDATA_INVERSION_NONE;
-	hcrc.Init.OutputDataInversionMode = CRC_OUTPUTDATA_INVERSION_DISABLE;
-	hcrc.InputDataFormat = CRC_INPUTDATA_FORMAT_WORDS;
-	HAL_CRC_Init(&hcrc);
+/* CRC16 Modbus Init function */
+void CRC_Init(void) {
+    hcrc.Instance = CRC;
+    hcrc.Init.DefaultInitValueUse = DEFAULT_INIT_VALUE_ENABLE;
+    hcrc.Init.DefaultPolynomialUse = DEFAULT_POLYNOMIAL_DISABLE; // سنحدد polynomial يدوي
+    hcrc.Init.GeneratingPolynomial = 0x8005; // Polynomial CRC16 Modbus
+    hcrc.Init.CRCLength = CRC_POLYLENGTH_16B;
+    hcrc.Init.InputDataInversionMode = CRC_INPUTDATA_INVERSION_BYTE; // عكس البايتات ليتوافق مع Modbus
+    hcrc.Init.OutputDataInversionMode = CRC_OUTPUTDATA_INVERSION_ENABLE; // عكس الخرج أيضا
+    hcrc.InputDataFormat = CRC_INPUTDATA_FORMAT_BYTES; // نمرر البيانات كـ bytes
+    HAL_CRC_Init(&hcrc);
 }
 
 /***************************************************************************/
-void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc){
-	/* Enable peripheral clock */
-	__HAL_RCC_CRC_CLK_ENABLE();
+void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc) {
+    if(hcrc->Instance == CRC) {
+        __HAL_RCC_CRC_CLK_ENABLE();
+    }
 }
 
 /***************************************************************************/
-void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc){
-	/* Disable peripheral clock */
-	__HAL_RCC_CRC_CLK_DISABLE();
+void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc) {
+    if(hcrc->Instance == CRC) {
+        __HAL_RCC_CRC_CLK_DISABLE();
+    }
 }
 
 /***************************************************************************/
-/* calculate CRC8 byte for a data buffer */
-uint8_t CalculateCRC8(uint8_t pBuffer[],uint16_t size){
-	uint8_t pTemp;
-	uint8_t temp_index;
-	uint8_t temp_buffer[4] ={0};
+/* Calculate CRC16 Modbus for a data buffer */
+uint16_t CalculateCRC16(uint8_t *pBuffer, uint16_t size) {
+    if (pBuffer == NULL || size == 0) {
+        return 0;
+    }
 
-	/* check if the passed variables are null */
-	if(NULL != pBuffer && 0 != size){
-		if(size < 4){
-			temp_index =0;
-			for(int i =0; i < 4; i++){
-				temp_buffer[i] =pBuffer[temp_index++];
-				if(--size == 0)
-					break;
-			}
-			pTemp =HAL_CRC_Calculate(&hcrc,(uint32_t* )temp_buffer,1);
+    /* HAL_CRC_Calculate expects data in uint32_t words, so we handle packing manually */
+    uint32_t temp_buffer[64]; // حجم مؤقت، يمكن تكبيره إذا لزم
+    uint16_t i;
 
-		}
+    // تعبئة buffer مؤقت بكلمات 32 بت
+    for (i = 0; i < size; i++) {
+        ((uint8_t*)temp_buffer)[i] = pBuffer[i];
+    }
 
-		else{
-			pTemp =HAL_CRC_Calculate(&hcrc,(uint32_t* )pBuffer,size / 4);
-			if((size % 4) != 0){
-				temp_index =size - (size % 4);
-				size %=4;
-				for(int i =0; i < 4; i++){
-					temp_buffer[i] =pBuffer[temp_index++];
-					if(--size == 0)
-						break;
-				}
-				pTemp =HAL_CRC_Accumulate(&hcrc,(uint32_t* )temp_buffer,1);
-
-			}
-		}
-
-		return pTemp;
-	}
-
-	else
-		return 0;
+    return (uint16_t)HAL_CRC_Calculate(&hcrc, temp_buffer, (size + 3) / 4);
 }
 
 /***************************************************************************/
