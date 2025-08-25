@@ -449,12 +449,12 @@ void Module_Peripheral_Init(void) {
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 
 	/* Array ports */
-	MX_USART1_UART_Init();
-	MX_USART2_UART_Init();
+//	MX_USART1_UART_Init();
+//	MX_USART2_UART_Init();
 //	MX_USART3_UART_Init();
-	MX_USART4_UART_Init();
-	MX_USART5_UART_Init();
-	MX_USART6_UART_Init();
+//	MX_USART4_UART_Init();
+//	MX_USART5_UART_Init();
+//	MX_USART6_UART_Init();
 
 
 

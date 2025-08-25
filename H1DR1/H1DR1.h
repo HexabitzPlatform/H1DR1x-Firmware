@@ -110,7 +110,11 @@ typedef enum {
 	H1DR1_OK = 0,
 	H1DR1_ERR_UNKNOWNMESSAGE,
 	H1DR1_ERR_WRONGMODE,
-	H1DR1_ERROR = 255
+	H1DR1_ERROR ,
+	Modbus_OK ,
+	Modbus_ERR_UnknownMessage ,
+	Modbus_ERR_WrongParams,
+	Modbus_ERROR = 255
 } Module_Status;
 /* Export UART variables */
 extern UART_HandleTypeDef huart1;

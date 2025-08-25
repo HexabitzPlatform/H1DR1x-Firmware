@@ -85,34 +85,49 @@ void MX_USART2_UART_Init(void){
 
 /***************************************************************************/
 /* USART3 init function */
-#ifdef _USART3
+//#ifdef _USART3
 void MX_USART3_UART_Init(void){
-	huart3.Instance = USART3;
-	huart3.Init.BaudRate = DEF_ARRAY_BAUDRATE;
-	huart3.Init.WordLength = UART_WORDLENGTH_8B;
-	huart3.Init.StopBits = UART_STOPBITS_1;
-	huart3.Init.Parity = UART_PARITY_NONE;
-	huart3.Init.Mode = UART_MODE_TX_RX;
-	huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-	huart3.Init.OverSampling = UART_OVERSAMPLING_16;
-	huart3.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-	huart3.Init.ClockPrescaler = UART_PRESCALER_DIV1;
-	huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-	HAL_UART_Init(&huart3);
 
-	HAL_UARTEx_SetTxFifoThreshold(&huart3,UART_TXFIFO_THRESHOLD_1_8);
+	  /* USER CODE BEGIN USART3_Init 0 */
 
-	HAL_UARTEx_SetRxFifoThreshold(&huart3,UART_RXFIFO_THRESHOLD_1_8);
+	  /* USER CODE END USART3_Init 0 */
 
-	HAL_UARTEx_DisableFifoMode(&huart3);
+	  /* USER CODE BEGIN USART3_Init 1 */
 
-#if _P3pol_reversed
-	huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_SWAP_INIT;
-	huart3.AdvancedInit.Swap = UART_ADVFEATURE_SWAP_ENABLE;
-	HAL_UART_Init(&huart3);
-	#endif	
+	  /* USER CODE END USART3_Init 1 */
+	  huart3.Instance = USART3;
+	  huart3.Init.BaudRate = 9600;
+	  huart3.Init.WordLength = UART_WORDLENGTH_8B;
+	  huart3.Init.StopBits = UART_STOPBITS_1;
+	  huart3.Init.Parity = UART_PARITY_NONE;
+	  huart3.Init.Mode = UART_MODE_TX_RX;
+	  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+	  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+	  huart3.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+	  huart3.Init.ClockPrescaler = UART_PRESCALER_DIV1;
+	  huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+	  if (HAL_RS485Ex_Init(&huart3, UART_DE_POLARITY_HIGH, 0, 0) != HAL_OK)
+	  {
+	    Error_Handler();
+	  }
+	  if (HAL_UARTEx_SetTxFifoThreshold(&huart3, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
+	  {
+	    Error_Handler();
+	  }
+	  if (HAL_UARTEx_SetRxFifoThreshold(&huart3, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
+	  {
+	    Error_Handler();
+	  }
+	  if (HAL_UARTEx_DisableFifoMode(&huart3) != HAL_OK)
+	  {
+	    Error_Handler();
+	  }
+	  /* USER CODE BEGIN USART3_Init 2 */
+
+	  /* USER CODE END USART3_Init 2 */
+
 }
-#endif
+//#endif
 
 /***************************************************************************/
 /* USART4 init function */
@@ -276,43 +291,58 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart){
 #endif
 	}
 	else if(huart->Instance == USART3){
-	#ifdef _USART3
-		PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART3;
-		PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_HSI;
-		HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit);
-		/* USART3 clock enable */
-		__HAL_RCC_USART3_CLK_ENABLE();
-		__HAL_RCC_GPIOB_CLK_ENABLE();
+//	#ifdef _USART3
 
-		/* USART3 GPIO Configuration */
-		GPIO_InitStruct.Pin = USART3_TX_PIN | USART3_RX_PIN;
-		GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-		GPIO_InitStruct.Pull = GPIO_NOPULL;
-		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-		GPIO_InitStruct.Alternate = USART3_AF;
-		HAL_GPIO_Init(USART3_TX_PORT,&GPIO_InitStruct);
 
-		/* USART3 DMA Init */
-		/* USART3_RX Init */
-		hdma_usart3_rx.Instance = DMA1_Channel3;
-		hdma_usart3_rx.Init.Request = DMA_REQUEST_USART3_RX;
-		hdma_usart3_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
-		hdma_usart3_rx.Init.PeriphInc = DMA_PINC_DISABLE;
-		hdma_usart3_rx.Init.MemInc = DMA_MINC_ENABLE;
-		hdma_usart3_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-		hdma_usart3_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-		hdma_usart3_rx.Init.Mode = DMA_CIRCULAR;
-		hdma_usart3_rx.Init.Priority = DMA_PRIORITY_LOW;
+		  GPIO_InitTypeDef GPIO_InitStruct = {0};
+		  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
-		UARTDMAHandler[(GetPort(huart) - 1)] = &hdma_usart3_rx;
+		  /* USER CODE BEGIN USART3_MspInit 0 */
 
-		HAL_DMA_Init(&hdma_usart3_rx);
-		__HAL_LINKDMA(huart,hdmarx,hdma_usart3_rx);
+		  /* USER CODE END USART3_MspInit 0 */
 
-		HAL_NVIC_SetPriority(USART3_4_5_6_LPUART1_IRQn, 0, 0);
-		HAL_NVIC_EnableIRQ(USART3_4_5_6_LPUART1_IRQn);
+		  /** Initializes the peripherals clocks
+		  */
+		    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART3;
+		    PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
+		    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+		    {
+		      Error_Handler();
+		    }
 
-#endif
+		    /* USART3 clock enable */
+		    __HAL_RCC_USART3_CLK_ENABLE();
+
+		    __HAL_RCC_GPIOA_CLK_ENABLE();
+		    __HAL_RCC_GPIOB_CLK_ENABLE();
+		    /**USART3 GPIO Configuration
+		    PA15     ------> USART3_DE
+		    PB8     ------> USART3_TX
+		    PB9     ------> USART3_RX
+		    */
+		    GPIO_InitStruct.Pin = GPIO_PIN_15;
+		    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+		    GPIO_InitStruct.Pull = GPIO_NOPULL;
+		    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+		    GPIO_InitStruct.Alternate = GPIO_AF5_USART3;
+		    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+		    GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9;
+		    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+		    GPIO_InitStruct.Pull = GPIO_NOPULL;
+		    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+		    GPIO_InitStruct.Alternate = GPIO_AF4_USART3;
+		    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+		    /* USART3 interrupt Init */
+		    HAL_NVIC_SetPriority(USART3_4_5_6_LPUART1_IRQn, 3, 0);
+		    HAL_NVIC_EnableIRQ(USART3_4_5_6_LPUART1_IRQn);
+		  /* USER CODE BEGIN USART3_MspInit 1 */
+
+		  /* USER CODE END USART3_MspInit 1 */
+
+
+//#endif
 	}
 	else if(huart->Instance == USART4){
 	#ifdef _USART4

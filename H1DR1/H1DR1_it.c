@@ -125,7 +125,7 @@ void USART2_LPUART2_IRQHandler(void){
 void USART3_4_5_6_LPUART1_IRQHandler(void){
 	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 
-#if defined (_USART3)
+
 	HAL_UART_IRQHandler(&huart3);
 
 	if((READ_BIT(huart3.Instance->CR1, USART_CR1_TXEIE_TXFNFIE) == USART_CR1_TXEIE_TXFNFIE_Msk) && (huart3.gState == HAL_UART_STATE_READY)){
@@ -135,48 +135,49 @@ void USART3_4_5_6_LPUART1_IRQHandler(void){
 		/* Enable the UART Transmit Complete Interrupt */
 		ATOMIC_SET_BIT(huart3.Instance->CR1,USART_CR1_TCIE);
 	}
-#endif
-
-#if defined (_USART4)
-	HAL_UART_IRQHandler(&huart4);
-
-	if((READ_BIT(huart4.Instance->CR1, USART_CR1_TXEIE_TXFNFIE) == USART_CR1_TXEIE_TXFNFIE_Msk) && (huart4.gState == HAL_UART_STATE_READY)){
-		/* Disable the UART Transmit Data Register Empty Interrupt */
-		ATOMIC_CLEAR_BIT(huart4.Instance->CR1,USART_CR1_TXEIE_TXFNFIE);
-
-		/* Enable the UART Transmit Complete Interrupt */
-		ATOMIC_SET_BIT(huart4.Instance->CR1,USART_CR1_TCIE);
-	}
-#endif
-
-#if defined (_USART5)
-	HAL_UART_IRQHandler(&huart5);
-
-	if((READ_BIT(huart5.Instance->CR1, USART_CR1_TXEIE_TXFNFIE) == USART_CR1_TXEIE_TXFNFIE_Msk) && (huart5.gState == HAL_UART_STATE_READY)){
-		/* Disable the UART Transmit Data Register Empty Interrupt */
-		ATOMIC_CLEAR_BIT(huart5.Instance->CR1,USART_CR1_TXEIE_TXFNFIE);
-
-		/* Enable the UART Transmit Complete Interrupt */
-		ATOMIC_SET_BIT(huart5.Instance->CR1,USART_CR1_TCIE);
-	}
-#endif
-
-#if defined (_USART6)
-	HAL_UART_IRQHandler(&huart6);
-
-	if((READ_BIT(huart6.Instance->CR1, USART_CR1_TXEIE_TXFNFIE) == USART_CR1_TXEIE_TXFNFIE_Msk) && (huart6.gState == HAL_UART_STATE_READY)){
-		/* Disable the UART Transmit Data Register Empty Interrupt */
-		ATOMIC_CLEAR_BIT(huart6.Instance->CR1,USART_CR1_TXEIE_TXFNFIE);
-
-		/* Enable the UART Transmit Complete Interrupt */
-		ATOMIC_SET_BIT(huart6.Instance->CR1,USART_CR1_TCIE);
-	}
-#endif
-
-	/* If lHigherPriorityTaskWoken is now equal to pdTRUE, then a context
-	 switch should be performed before the interrupt exists.  That ensures the
-	 unblocked (higher priority) task is returned to immediately. */
-	portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
+//	#if defined (_USART3)
+//#endif
+//
+//#if defined (_USART4)
+//	HAL_UART_IRQHandler(&huart4);
+//
+//	if((READ_BIT(huart4.Instance->CR1, USART_CR1_TXEIE_TXFNFIE) == USART_CR1_TXEIE_TXFNFIE_Msk) && (huart4.gState == HAL_UART_STATE_READY)){
+//		/* Disable the UART Transmit Data Register Empty Interrupt */
+//		ATOMIC_CLEAR_BIT(huart4.Instance->CR1,USART_CR1_TXEIE_TXFNFIE);
+//
+//		/* Enable the UART Transmit Complete Interrupt */
+//		ATOMIC_SET_BIT(huart4.Instance->CR1,USART_CR1_TCIE);
+//	}
+//#endif
+//
+//#if defined (_USART5)
+//	HAL_UART_IRQHandler(&huart5);
+//
+//	if((READ_BIT(huart5.Instance->CR1, USART_CR1_TXEIE_TXFNFIE) == USART_CR1_TXEIE_TXFNFIE_Msk) && (huart5.gState == HAL_UART_STATE_READY)){
+//		/* Disable the UART Transmit Data Register Empty Interrupt */
+//		ATOMIC_CLEAR_BIT(huart5.Instance->CR1,USART_CR1_TXEIE_TXFNFIE);
+//
+//		/* Enable the UART Transmit Complete Interrupt */
+//		ATOMIC_SET_BIT(huart5.Instance->CR1,USART_CR1_TCIE);
+//	}
+//#endif
+//
+//#if defined (_USART6)
+//	HAL_UART_IRQHandler(&huart6);
+//
+//	if((READ_BIT(huart6.Instance->CR1, USART_CR1_TXEIE_TXFNFIE) == USART_CR1_TXEIE_TXFNFIE_Msk) && (huart6.gState == HAL_UART_STATE_READY)){
+//		/* Disable the UART Transmit Data Register Empty Interrupt */
+//		ATOMIC_CLEAR_BIT(huart6.Instance->CR1,USART_CR1_TXEIE_TXFNFIE);
+//
+//		/* Enable the UART Transmit Complete Interrupt */
+//		ATOMIC_SET_BIT(huart6.Instance->CR1,USART_CR1_TCIE);
+//	}
+//#endif
+//
+//	/* If lHigherPriorityTaskWoken is now equal to pdTRUE, then a context
+//	 switch should be performed before the interrupt exists.  That ensures the
+//	 unblocked (higher priority) task is returned to immediately. */
+//	portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 }
 
 /***************************************************************************/
@@ -254,9 +255,9 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart){
 }
 
 /***************************************************************************/
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-
-}
+//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+//
+//}
 
 /***************************************************************************/
 /* UART wake-up from Stop mode callback */
