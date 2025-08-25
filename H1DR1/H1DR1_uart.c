@@ -15,7 +15,6 @@
 DMA_HandleTypeDef hdma_usart1_rx;
 DMA_HandleTypeDef hdma_usart2_rx;
 DMA_HandleTypeDef hdma_usart3_rx;
-DMA_HandleTypeDef hdma_usart3_tx;
 DMA_HandleTypeDef hdma_usart4_rx;
 DMA_HandleTypeDef hdma_usart5_rx;
 DMA_HandleTypeDef hdma_usart6_rx;
@@ -86,39 +85,33 @@ void MX_USART2_UART_Init(void){
 
 /***************************************************************************/
 /* USART3 init function */
-void MX_USART3_UART_Init(void) {
-
-  /* USER CODE BEGIN USART3_Init 0 */
-
-  /* USER CODE END USART3_Init 0 */
-
-  /* USER CODE BEGIN USART3_Init 1 */
-
-  /* USER CODE END USART3_Init 1 */
-  huart3.Instance = USART3;
-  huart3.Init.BaudRate = 9600;
-  huart3.Init.WordLength = UART_WORDLENGTH_8B;
-  huart3.Init.StopBits = UART_STOPBITS_1;
-  huart3.Init.Parity = UART_PARITY_NONE;
-  huart3.Init.Mode = UART_MODE_TX_RX;
-  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
-  huart3.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_RXOVERRUNDISABLE_INIT;
-  huart3.AdvancedInit.OverrunDisable = UART_ADVFEATURE_OVERRUN_DISABLE;
-
-
-  if (HAL_RS485Ex_Init(&huart3, UART_DE_POLARITY_HIGH, 0, 0) != HAL_OK) {
-    Error_Handler();
-  }
-
-  /* USER CODE BEGIN USART3_Init 2 */
-
-  /* USER CODE END USART3_Init 2 */
-}
-
-
 #ifdef _USART3
+void MX_USART3_UART_Init(void){
+	huart3.Instance = USART3;
+	huart3.Init.BaudRate = DEF_ARRAY_BAUDRATE;
+	huart3.Init.WordLength = UART_WORDLENGTH_8B;
+	huart3.Init.StopBits = UART_STOPBITS_1;
+	huart3.Init.Parity = UART_PARITY_NONE;
+	huart3.Init.Mode = UART_MODE_TX_RX;
+	huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+	huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+	huart3.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+	huart3.Init.ClockPrescaler = UART_PRESCALER_DIV1;
+	huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+	HAL_UART_Init(&huart3);
+
+	HAL_UARTEx_SetTxFifoThreshold(&huart3,UART_TXFIFO_THRESHOLD_1_8);
+
+	HAL_UARTEx_SetRxFifoThreshold(&huart3,UART_RXFIFO_THRESHOLD_1_8);
+
+	HAL_UARTEx_DisableFifoMode(&huart3);
+
+#if _P3pol_reversed
+	huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_SWAP_INIT;
+	huart3.AdvancedInit.Swap = UART_ADVFEATURE_SWAP_ENABLE;
+	HAL_UART_Init(&huart3);
+	#endif	
+}
 #endif
 
 /***************************************************************************/
@@ -283,72 +276,43 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart){
 #endif
 	}
 	else if(huart->Instance == USART3){
-//	#ifdef _USART3
-		 PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART3;
-		    PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
-		    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
-		    {
-		      Error_Handler();
-		    }
+	#ifdef _USART3
+		PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART3;
+		PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_HSI;
+		HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit);
+		/* USART3 clock enable */
+		__HAL_RCC_USART3_CLK_ENABLE();
+		__HAL_RCC_GPIOB_CLK_ENABLE();
 
-		    /* USART3 clock enable */
-		      __HAL_RCC_USART3_CLK_ENABLE();
+		/* USART3 GPIO Configuration */
+		GPIO_InitStruct.Pin = USART3_TX_PIN | USART3_RX_PIN;
+		GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+		GPIO_InitStruct.Alternate = USART3_AF;
+		HAL_GPIO_Init(USART3_TX_PORT,&GPIO_InitStruct);
 
-		      __HAL_RCC_GPIOA_CLK_ENABLE();
-		      __HAL_RCC_GPIOB_CLK_ENABLE();
-		      /**USART3 GPIO Configuration
-		      PA15     ------> USART3_DE
-		      PB8     ------> USART3_TX
-		      PB9     ------> USART3_RX
-		      */
-		      GPIO_InitStruct.Pin = GPIO_PIN_15;
-		      GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-		      GPIO_InitStruct.Pull = GPIO_NOPULL;
-		      GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-		      GPIO_InitStruct.Alternate = GPIO_AF5_USART3;
-		      HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+		/* USART3 DMA Init */
+		/* USART3_RX Init */
+		hdma_usart3_rx.Instance = DMA1_Channel3;
+		hdma_usart3_rx.Init.Request = DMA_REQUEST_USART3_RX;
+		hdma_usart3_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+		hdma_usart3_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+		hdma_usart3_rx.Init.MemInc = DMA_MINC_ENABLE;
+		hdma_usart3_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+		hdma_usart3_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+		hdma_usart3_rx.Init.Mode = DMA_CIRCULAR;
+		hdma_usart3_rx.Init.Priority = DMA_PRIORITY_LOW;
 
-		      GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9;
-		      GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-		      GPIO_InitStruct.Pull = GPIO_NOPULL;
-		      GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-		      GPIO_InitStruct.Alternate = GPIO_AF4_USART3;
-		      HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+		UARTDMAHandler[(GetPort(huart) - 1)] = &hdma_usart3_rx;
 
-		      /* USART3_RX Init */
-		      hdma_usart3_rx.Instance = DMA1_Channel3;
-		      hdma_usart3_rx.Init.Request = DMA_REQUEST_USART3_RX;
-		      hdma_usart3_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
-		      hdma_usart3_rx.Init.PeriphInc = DMA_PINC_DISABLE;
-		      hdma_usart3_rx.Init.MemInc = DMA_MINC_ENABLE;
-		      hdma_usart3_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-		      hdma_usart3_rx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-		      hdma_usart3_rx.Init.Mode = DMA_CIRCULAR;
-		      hdma_usart3_rx.Init.Priority = DMA_PRIORITY_LOW;
-		      if (HAL_DMA_Init(&hdma_usart3_rx) != HAL_OK) {
-		        Error_Handler();
-		      }
-		      __HAL_LINKDMA(huart, hdmarx, hdma_usart3_rx);
-		      /* USART3_TX Init */
-		      hdma_usart3_tx.Instance = DMA1_Channel4;
-		      hdma_usart3_tx.Init.Request = DMA_REQUEST_USART3_TX;
-		      hdma_usart3_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
-		      hdma_usart3_tx.Init.PeriphInc = DMA_PINC_DISABLE;
-		      hdma_usart3_tx.Init.MemInc = DMA_MINC_ENABLE;
-		      hdma_usart3_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-		      hdma_usart3_tx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-		      hdma_usart3_tx.Init.Mode = DMA_NORMAL;
-		      hdma_usart3_tx.Init.Priority = DMA_PRIORITY_LOW;
-		      if (HAL_DMA_Init(&hdma_usart3_tx) != HAL_OK) {
-		        Error_Handler();
-		      }
-		      __HAL_LINKDMA(huart, hdmatx, hdma_usart3_tx);
+		HAL_DMA_Init(&hdma_usart3_rx);
+		__HAL_LINKDMA(huart,hdmarx,hdma_usart3_rx);
 
-		      /* USART3 interrupt Init */
-		      HAL_NVIC_SetPriority(USART3_4_5_6_LPUART1_IRQn, 3, 0);
-		      HAL_NVIC_EnableIRQ(USART3_4_5_6_LPUART1_IRQn);
-		      /* USER CODE BEGIN USART3_MspInit 1 */
-//#endif
+		HAL_NVIC_SetPriority(USART3_4_5_6_LPUART1_IRQn, 0, 0);
+		HAL_NVIC_EnableIRQ(USART3_4_5_6_LPUART1_IRQn);
+
+#endif
 	}
 	else if(huart->Instance == USART4){
 	#ifdef _USART4
@@ -502,10 +466,10 @@ HAL_StatusTypeDef readPxITMutex(uint8_t port,char *buffer,uint16_t n,uint32_t mu
 	HAL_StatusTypeDef result =HAL_ERROR;
 	
 	if(GetUart(port) != NULL){
-//		/* Wait for the mutex to be available. */
-//		if(osSemaphoreWait(PxRxSemaphoreHandle[port],mutexTimeout) == osOK){
-//			result =HAL_UART_Receive_IT(GetUart(port),(uint8_t* )buffer,n);
-//		}
+		/* Wait for the mutex to be available. */
+		if(osSemaphoreWait(PxRxSemaphoreHandle[port],mutexTimeout) == osOK){
+			result =HAL_UART_Receive_IT(GetUart(port),(uint8_t* )buffer,n);
+		}
 	}
 	return result;
 }

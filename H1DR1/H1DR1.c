@@ -31,23 +31,7 @@ TaskHandle_t RGBledTaskHandle = NULL;
 
 /* Private Variables *******************************************************/
 
-#include <string.h>
-#include <stdio.h>
-#include "cmsis_os.h"
-#include "mbm.h"
-#define TIMERID_RTC_TIMER        0xFE
-#define TIMERID_TMOUT_TIMER      0xFD
-static void RTC_HandleTimer(TimerHandle_t zTimer);
-static void TMOUT_HandleTimer(TimerHandle_t sTimer);
-TimerHandle_t zTimer = NULL;
-TimerHandle_t sTimer = NULL;
-uint8_t mbTriggerFlag=0;
-uint8_t Hour;
-uint8_t Minute;
-uint8_t Second;
-uint8_t wmTimeOut;
-uint16_t msCounter;
-uint16_t TMOUT_Counter;
+
 /* Module Parameters */
 ModuleParam_t ModuleParam[NUM_MODULE_PARAMS] = { 0 };
 
@@ -458,24 +442,6 @@ void SetupPortForRemoteBootloaderUpdate(uint8_t port){
 
 }
 
-void Modbus_task_Init(void)
-{
-
-	/* Definition and creation of software timers */
-	zTimer = xTimerCreate( "RTC_Timer", pdMS_TO_TICKS(1), pdTRUE, ( void * ) TIMERID_RTC_TIMER, RTC_HandleTimer );
-	xTimerStart( zTimer, portMAX_DELAY );
-
-	sTimer = xTimerCreate( "TimeOut_Timer", pdMS_TO_TICKS(1), pdTRUE, ( void * ) TIMERID_TMOUT_TIMER, TMOUT_HandleTimer );
-	xTimerStart( sTimer, portMAX_DELAY );
-
-//	osThreadDef(defaultTask, MessagingTask, osPriorityNormal, 0, 8*128);
-//	MessagingTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
-
-	/* Initializing DMA recieve */
-//	HAL_UART_Receive_DMA(P1uart, &RcvMessage[0][0], RcvMessageMaxSize);
-
-
-}
 /***************************************************************************/
 /* H1DR1 module initialization */
 void Module_Peripheral_Init(void) {
@@ -483,12 +449,12 @@ void Module_Peripheral_Init(void) {
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 
 	/* Array ports */
-//	MX_USART1_UART_Init();
-//	MX_USART2_UART_Init();
-	MX_USART3_UART_Init();
-//	MX_USART4_UART_Init();
-//	MX_USART5_UART_Init();
-//	MX_USART6_UART_Init();
+	MX_USART1_UART_Init();
+	MX_USART2_UART_Init();
+//	MX_USART3_UART_Init();
+	MX_USART4_UART_Init();
+	MX_USART5_UART_Init();
+	MX_USART6_UART_Init();
 
 
 
@@ -508,7 +474,7 @@ void Module_Peripheral_Init(void) {
 			dmaIndex[i - 1] = &(DMA1_Channel6->CNDTR);
 		}
 	}
-	Modbus_task_Init();
+
 	/* Create module special task (if needed) */
 //	if (RGBledTaskHandle == NULL)
 //		xTaskCreate(RGBledTask, (const char*) "RGBledTask", configMINIMAL_STACK_SIZE, NULL,
@@ -518,17 +484,17 @@ void Module_Peripheral_Init(void) {
 /***************************************************************************/
 /* H1DR1 message processing task */
 Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uint8_t dst, uint8_t shift) {
-//	Module_Status result = H1DR1_OK;
-//
-//
-//	switch (code) {
-//
-//	default:
-//		result = H1DR1_ERR_UNKNOWNMESSAGE;
-//		break;
-//	}
-//
-//	return result;
+	Module_Status result = H1DR1_OK;
+
+
+	switch (code) {
+
+	default:
+		result = H1DR1_ERR_UNKNOWNMESSAGE;
+		break;
+	}
+
+	return result;
 }
 /***************************************************************************/
 /* Get the port for a given UART */
@@ -592,229 +558,14 @@ Module_Status GetModuleParameter(uint8_t paramIndex, float *value) {
 //		taskYIELD();
 //	}
 //}
-/* Handle for Modbus Master */
-xMBMHandle xMBMaster;
-//
-///***************************************************************************/
-///****************************** Local Functions ****************************/
-///***************************************************************************/
-/* --- set timeout to a slave on Modbus port
-*/
-Module_Status SetTimeOut(uint16_t MiliSeconds)
-{
-	Module_Status Status;
-	USHORT timeout = (USHORT) MiliSeconds;
-//	  HAL_NVIC_DisableIRQ(DMA1_Ch2_3_DMA2_Ch1_2_IRQn);
-//	  HAL_NVIC_DisableIRQ(DMA1_Ch4_7_DMA2_Ch3_5_IRQn);
-	if (MB_ENOERR != eMBMSetSlaveTimeout( xMBMaster, timeout )) {
-		Status = Modbus_ERROR;}
-	else
-		Status = Modbus_OK;
-//	  HAL_NVIC_EnableIRQ(DMA1_Ch4_7_DMA2_Ch3_5_IRQn);
-//	  HAL_NVIC_EnableIRQ(DMA1_Ch2_3_DMA2_Ch1_2_IRQn);
-	return Status;
-}
-static void RTC_HandleTimer(TimerHandle_t zTimer)
-{
-	uint32_t Timer_ID = 0;
 
-	Timer_ID = ( uint32_t ) pvTimerGetTimerID( zTimer );
-  if (TIMERID_RTC_TIMER == Timer_ID)
-  {
-		msCounter++;
-		if (msCounter==1000)
-		{
-			Second++;
-			msCounter=0;
-		}
-		if (Second==60)
-		{
-			Second=0;
-			Minute++;
-		}
-		if (Minute==60)
-		{
-			Minute=0;
-			Hour++;
-		}
-		if (Hour==24)
-		{
-			Hour=0;
-		}
-	}
-}
+/***************************************************************************/
+/****************************** Local Functions ****************************/
+/***************************************************************************/
 
-
-/* --- TimeOut software timer*/
-
-static void TMOUT_HandleTimer(TimerHandle_t sTimer)
-{
-	uint32_t Timer_ID = 0;
-
-	Timer_ID = ( uint32_t ) pvTimerGetTimerID( sTimer );
-  if (TIMERID_TMOUT_TIMER == Timer_ID)
-  {
-		TMOUT_Counter++;
-		if (TMOUT_Counter==1000){
-			wmTimeOut++;
-			TMOUT_Counter=0;
-		}
-	}
-}
-/* Structure for receiving messaging data */
-struct rxMessaging_TypeDef
-{
-	uint8_t Flag;
-	uint8_t Port;
-};
-
-/* Structure for receiving messaging data */
-struct rxMessaging_TypeDef rxMessaging;
-extern uint8_t jk[20];
-/********************************************************************/
-/*
- * @brief: UART receive complete callback.
- * @param: huart - handle to the UART.
- * @retval: None
- */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-
-	rxMessaging.Flag = 1;
-//	HAL_UART_Receive_IT(&huart3, jk,1);
-	if (huart == &huart3) {
-		prvvMBPUSART1_RXNE_ISR(); /* Call Modbus protocol port ISR */
-	}
-
-	/* NOTE : This function should not be modified, when the callback is needed,
-	 the HAL_UART_RxCpltCallback can be implemented in the user file.
-	 */
-}
-///***************************************************************************/
-///***************************** General Functions ***************************/
-///***************************************************************************/
-/*
- * @brief: Sets up the Modbus RTU communication.
- * @param1: BaudRate - the baud rate for communication.
- * @param2: ParityBit - the parity setting (e.g., none, even, odd).
- * @retval: Module_Status - status of the setup process.
- */
-Module_Status SetupModbusRTU(uint32_t BaudRate, uint32_t ParityBit) {
-	Module_Status Status;
-	ULONG Pbit = (ULONG) ParityBit;
-	ULONG ulBaudRate = (ULONG) BaudRate;
-//	HAL_NVIC_DisableIRQ(DMA1_Ch2_3_DMA2_Ch1_2_IRQn);
-//	HAL_NVIC_DisableIRQ(DMA1_Ch4_7_DMA2_Ch3_5_IRQn);
-	/* Initialize Modbus port as RTU */
-	if (MB_ENOERR != eMBMSerialInit(&xMBMaster, MB_RTU, 1, ulBaudRate, Pbit)) {
-		Status = Modbus_ERROR;
-	} else {
-		Status = Modbus_OK;
-	}
-//	HAL_NVIC_EnableIRQ(DMA1_Ch4_7_DMA2_Ch3_5_IRQn);
-//	HAL_NVIC_EnableIRQ(DMA1_Ch2_3_DMA2_Ch1_2_IRQn);
-	return Status;
-}
-
-/********************************************************************/
-/*
- * @brief: Sets up the Modbus mode as ASCII.
- * @param1: BaudRate - the baud rate for communication.
- * @param2: ParityBit - the parity setting (e.g., none, even, odd).
- * @retval: Module_Status - status of the setup process.
- */
-Module_Status SetupModbusASCII(uint32_t BaudRate, uint32_t ParityBit) {
-	Module_Status Status;
-	ULONG Pbit = (ULONG) ParityBit;
-	ULONG ulBaudRate = (ULONG) BaudRate;
-//	HAL_NVIC_DisableIRQ(DMA1_Ch2_3_DMA2_Ch1_2_IRQn);
-//	HAL_NVIC_DisableIRQ(DMA1_Ch4_7_DMA2_Ch3_5_IRQn);
-	/* Initialize Modbus port as ASCII */
-	if (MB_ENOERR != eMBMSerialInit(&xMBMaster, MB_ASCII, 1, ulBaudRate, Pbit)) {
-		Status = Modbus_ERROR;
-	} else {
-		Status = Modbus_OK;
-	}
-//	HAL_NVIC_EnableIRQ(DMA1_Ch4_7_DMA2_Ch3_5_IRQn);
-//	HAL_NVIC_EnableIRQ(DMA1_Ch2_3_DMA2_Ch1_2_IRQn);
-	return Status;
-}
-
-/********************************************************************/
-/*
- * @brief: Reads data from a slave on Modbus port FC: 0x03.
- * @param1: SlaveAdd - the address of the slave device.
- * @param2: RegAdd - the starting address of the register to read from.
- * @param3: NofReg - number of registers to read.
- * @param4: DataBuffer - pointer to a buffer where the read data will be stored.
- * @retval: Module_Status - status of the read process.
- */
-Module_Status ReadModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd,
-		uint8_t NofReg, unsigned short *DataBuffer) {
-	Module_Status Status;
-	unsigned short *Buffer = DataBuffer;
-
-//	HAL_NVIC_DisableIRQ(DMA1_Ch2_3_DMA2_Ch1_2_IRQn);
-//	HAL_NVIC_DisableIRQ(DMA1_Ch4_7_DMA2_Ch3_5_IRQn);
-	if (MB_ENOERR != eMBMReadHoldingRegisters(xMBMaster, SlaveAdd, RegAdd, NofReg, Buffer)) {
-		Status = Modbus_ERROR;
-	} else {
-		Status = Modbus_OK;
-	}
-//	HAL_NVIC_EnableIRQ(DMA1_Ch4_7_DMA2_Ch3_5_IRQn);
-//	HAL_NVIC_EnableIRQ(DMA1_Ch2_3_DMA2_Ch1_2_IRQn);
-
-	return Status;
-}
-
-/********************************************************************/
-/*
- * @brief: Writes data to a slave on Modbus port FC: 0x06.
- * @param1: SlaveAdd - the address of the slave device.
- * @param2: RegAdd - the starting address of the register to write to.
- * @param3: Data - the data to be written.
- * @retval: Module_Status - status of the write process.
- */
-Module_Status WriteModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd,
-		uint32_t Data) {
-	Module_Status Status;
-//	taskENTER_CRITICAL();
-//	HAL_NVIC_DisableIRQ(DMA1_Ch2_3_DMA2_Ch1_2_IRQn);
-//	HAL_NVIC_DisableIRQ(DMA1_Ch4_7_DMA2_Ch3_5_IRQn);
-	if (MB_ENOERR != eMBMWriteSingleRegister(xMBMaster, SlaveAdd, RegAdd, Data)) {
-		Status = Modbus_ERROR;
-	} else {
-		Status = Modbus_OK;
-	}
-//	taskEXIT_CRITICAL();
-//	HAL_NVIC_EnableIRQ(DMA1_Ch4_7_DMA2_Ch3_5_IRQn);
-//	HAL_NVIC_EnableIRQ(DMA1_Ch2_3_DMA2_Ch1_2_IRQn);
-	return Status;
-}
-
-/********************************************************************/
-/*
- * @brief: Writes multiple data bytes to a slave on Modbus port FC: 0x10.
- * @param1: SlaveAdd - the address of the slave device.
- * @param2: RegAdd - the starting address of the register to write to.
- * @param3: NofReg - number of registers to write.
- * @param4: Data - pointer to the data to be written.
- * @retval: Module_Status - status of the write process.
- */
-Module_Status WriteModbusMultiRegisters(uint8_t SlaveAdd, uint32_t RegAdd,
-		uint8_t NofReg, uint16_t *Data) {
-	Module_Status Status;
-	USHORT *InBuffer = (USHORT*) Data;
-//	HAL_NVIC_DisableIRQ(DMA1_Ch2_3_DMA2_Ch1_2_IRQn);
-//	HAL_NVIC_DisableIRQ(DMA1_Ch4_7_DMA2_Ch3_5_IRQn);
-	if (MB_ENOERR != eMBMWriteMultipleRegisters(xMBMaster, SlaveAdd, RegAdd, NofReg, InBuffer)) {
-		Status = Modbus_ERROR;
-	} else {
-		Status = Modbus_OK;
-	}
-//	HAL_NVIC_EnableIRQ(DMA1_Ch4_7_DMA2_Ch3_5_IRQn);
-//	HAL_NVIC_EnableIRQ(DMA1_Ch2_3_DMA2_Ch1_2_IRQn);
-	return Status;
-}
+/***************************************************************************/
+/***************************** General Functions ***************************/
+/***************************************************************************/
 
 /***************************************************************************/
 /********************************* Commands ********************************/

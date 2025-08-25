@@ -15,8 +15,8 @@
 /* Define to prevent recursive inclusion ***********************************/
 #ifndef H1DR1_H
 #define H1DR1_H
-//
-///* Includes ****************************************************************/
+
+/* Includes ****************************************************************/
 #include "BOS.h"
 #include "H1DR1_MemoryMap.h"
 #include "H1DR1_uart.h"
@@ -24,35 +24,6 @@
 #include "H1DR1_dma.h"
 #include "H1DR1_inputs.h"
 #include "H1DR1_eeprom.h"
-#include "mbtypes.h"
-
-
-/* Includes ------------------------------------------------------------------*/
-#include "stm32g0xx_hal.h"
-
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-#include "FreeRTOS.h"
-#include "task.h"
-#include "timers.h"
-//#include "mb_master_API.h"
-#include "cmsis_os.h"
-#include <string.h>
-#include <stdio.h>
-//#include "mbtypes.h"
-
-
-/* Private defines -----------------------------------------------------------*/
-#define _IND_LED_PIN_Pin GPIO_PIN_14
-#define _IND_LED_PIN_GPIO_Port GPIOB
-/* USER CODE BEGIN Private defines */
-extern uint8_t flag1 ;
-extern uint8_t flag2 ;
-
-
-
-
-
 
 /* Exported Macros *********************************************************/
 #define	MODULE_PN		_H1DR1
@@ -99,8 +70,8 @@ extern uint8_t flag2 ;
 #define	USART2_RX_PORT		GPIOA
 #define	USART2_AF			GPIO_AF1_USART2
 
-#define	USART3_TX_PIN		GPIO_PIN_8
-#define	USART3_RX_PIN		GPIO_PIN_9
+#define	USART3_TX_PIN		GPIO_PIN_10
+#define	USART3_RX_PIN		GPIO_PIN_11
 #define	USART3_TX_PORT		GPIOB
 #define	USART3_RX_PORT		GPIOB
 #define	USART3_AF			GPIO_AF4_USART3
@@ -135,13 +106,11 @@ extern uint8_t flag2 ;
 
 /* Module-specific Type Definition *****************************************/
 /* Module-status Type Definition */
-
-typedef enum
- {
-	Modbus_OK = 0,
-	Modbus_ERR_UnknownMessage = 1,
-	Modbus_ERR_WrongParams,
-	Modbus_ERROR = 255
+typedef enum {
+	H1DR1_OK = 0,
+	H1DR1_ERR_UNKNOWNMESSAGE,
+	H1DR1_ERR_WRONGMODE,
+	H1DR1_ERROR = 255
 } Module_Status;
 /* Export UART variables */
 extern UART_HandleTypeDef huart1;
@@ -163,11 +132,7 @@ extern void SystemClock_Config(void);
 /***************************************************************************/
 /***************************** General Functions ***************************/
 /***************************************************************************/
-Module_Status SetupModbusRTU(uint32_t BaudRate, uint32_t ParityBit);
-Module_Status WriteModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd,
-		uint32_t Data);
-Module_Status ReadModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd,
-		uint8_t NofReg, unsigned short *DataBuffer) ;
+
 #endif /* H01R0_H */
 
 /***************** (C) COPYRIGHT HEXABITZ ***** END OF FILE ****************/
