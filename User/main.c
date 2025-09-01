@@ -40,12 +40,14 @@ uint16_t w[10]={0x55 ,0x11 ,0x22 ,0x33};
 unsigned short rr[10];
 void UserTask(void const *argument) {
 	  SetupModbusRTU();
-	    SetTimeOut(200);
+	    SetTimeOut(500);
 
 
 	/* Infinite loop */
 	for (;;) {
-		yy ++;HAL_Delay(200);
+		yy ++;
+
+		HAL_Delay(100);
 		ReadModbusRegister(1, 0, 10, rr);
 //		HAL_UART_Transmit_IT(&huart3, &d, 1);
 //		HAL_UART_Transmit(&huart3, &d, 1,0xffff);
