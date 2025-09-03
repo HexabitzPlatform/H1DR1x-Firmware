@@ -439,7 +439,7 @@ eMBMSerialRTUFrameSend( xMBHandle xHdl, UCHAR ucSlaveAddress, USHORT usMBPDULeng
     }
     return eStatus;
 }
-uint32_t ff ;
+
 STATIC          eMBErrorCode
 eMBMSerialRTUFrameReceive( xMBHandle xHdl, UCHAR ucSlaveAddress, USHORT * pusMBPDULength )
 {
@@ -505,54 +505,6 @@ eMBMSerialRTUFrameReceive( xMBHandle xHdl, UCHAR ucSlaveAddress, USHORT * pusMBP
                 xAnalyzerFrame.x.xRTUHeader.usCRC16 = pxRTUHdl->ubRTUFrameBuffer[pxRTUHdl->usRcvBufferPos - 1];
                 xAnalyzerFrame.x.xRTUHeader.usCRC16 |= ( USHORT ) ( pxRTUHdl->ubRTUFrameBuffer[pxRTUHdl->usRcvBufferPos - 2] << 8U );
 #endif
-                BOOL bLenOk      = FALSE;
-                              BOOL bAddrOk     = FALSE;
-                              BOOL bCrcOk      = FALSE;
-
-                              // 1️⃣ فحص الطول
-                              if( pxRTUHdl->usRcvBufferPos >= MBM_SER_PDU_SIZE_MIN )
-                              {
-                                  bLenOk = TRUE;
-                              }
-                              else
-                              {
-                                  bLenOk = FALSE;
-                                   }
-                  ff=      &pxRTUHdl->ubRTUFrameBuffer[MBM_SER_PDU_ADDR_OFF];
-                              // 2️⃣ فحص العنوان
-                              if( ucSlaveAddress == pxRTUHdl->ubRTUFrameBuffer[MBM_SER_PDU_ADDR_OFF] )
-                              {
-                                  bAddrOk = TRUE;
-                              }
-                              else
-                              {
-                                  bAddrOk = FALSE;
-                             }
-
-                              // 3️⃣ فحص الـ CRC
-                              USHORT crcCalc = usMBMCRC16(
-                                                  (UBYTE*)&(pxRTUHdl->ubRTUFrameBuffer[0]),
-                                                  pxRTUHdl->usRcvBufferPos
-                                              );
-                              if( crcCalc == 0 )
-                              {
-                                  bCrcOk = TRUE;
-                              }
-                              else
-                              {
-                                  bCrcOk = FALSE;
-                             }
-
-                              // ✅ النتيجة النهائية
-                              if( bLenOk && bAddrOk && bCrcOk )
-                              {
-
-                                  eStatus = MB_ENOERR;
-                              }
-//                              else
-//                              {
-//                                  eStatus = MB_EIO;
-//                              }
                 eStatus = MB_ENOERR;
             }
             else
