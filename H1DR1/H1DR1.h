@@ -29,7 +29,7 @@
 #define	MODULE_PN		_H1DR1
 
 /* Port-related Definitions */
-//#define	NUM_OF_PORTS	5
+#define	NUM_OF_PORTS	5
 #define P_PROG 			P2		/* ST factory bootloader UART */
 
 /* Define Available ports */
@@ -54,7 +54,7 @@
 #define UART_P3 &huart6
 #define UART_P4 &huart1
 #define UART_P5 &huart5
-//#define UART_P6 /&huart3
+//#define UART_P6 &huart3
 
 /* Module-specific Hardware Definitions ************************************/
 /* Port Definitions */
@@ -69,12 +69,12 @@
 #define	USART2_TX_PORT		GPIOA
 #define	USART2_RX_PORT		GPIOA
 #define	USART2_AF			GPIO_AF1_USART2
-
-#define	USART3_TX_PIN		GPIO_PIN_10
-#define	USART3_RX_PIN		GPIO_PIN_11
-#define	USART3_TX_PORT		GPIOB
-#define	USART3_RX_PORT		GPIOB
-#define	USART3_AF			GPIO_AF4_USART3
+//
+//#define	USART3_TX_PIN		GPIO_PIN_10
+//#define	USART3_RX_PIN		GPIO_PIN_11
+//#define	USART3_TX_PORT		GPIOB
+//#define	USART3_RX_PORT		GPIOB
+//#define	USART3_AF			GPIO_AF4_USART3
 
 #define	USART4_TX_PIN		GPIO_PIN_0
 #define	USART4_RX_PIN		GPIO_PIN_1
@@ -116,11 +116,8 @@ typedef enum {
 	H1DR1_OK = 0,
 	H1DR1_ERR_UNKNOWNMESSAGE,
 	H1DR1_ERR_WRONGMODE,
-	H1DR1_ERROR ,
-	Modbus_OK ,
-	Modbus_ERR_UnknownMessage ,
-	Modbus_ERR_WrongParams,
-	Modbus_ERROR = 255
+	H1DR1_ERROR =255
+
 } Module_Status;
 /* Structure for receiving messaging data */
 struct rxMessaging_TypeDef

@@ -86,45 +86,34 @@ void MX_USART2_UART_Init(void){
 /***************************************************************************/
 /* USART3 init function */
 //#ifdef _USART3
-void MX_USART3_UART_Init(void){
+void MX_USART3_UART_Init(void) {
 
-	  /* USER CODE BEGIN USART3_Init 0 */
+	/* USER CODE BEGIN USART3_Init 0 */
 
-	  /* USER CODE END USART3_Init 0 */
+	/* USER CODE END USART3_Init 0 */
 
-	  /* USER CODE BEGIN USART3_Init 1 */
+	/* USER CODE BEGIN USART3_Init 1 */
 
-	  /* USER CODE END USART3_Init 1 */
-	  huart3.Instance = USART3;
-	  huart3.Init.BaudRate = 19200;
-	  huart3.Init.WordLength = UART_WORDLENGTH_8B;
-	  huart3.Init.StopBits = UART_STOPBITS_1;
-	  huart3.Init.Parity = UART_PARITY_NONE;
-	  huart3.Init.Mode = UART_MODE_TX_RX;
-	  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-	  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
-	  huart3.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-	  huart3.Init.ClockPrescaler = UART_PRESCALER_DIV1;
-	  huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-	  if (HAL_RS485Ex_Init(&huart3, UART_DE_POLARITY_HIGH, 0, 0) != HAL_OK)
-	  {
-	    Error_Handler();
-	  }
-	  if (HAL_UARTEx_SetTxFifoThreshold(&huart3, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
-	  {
-	    Error_Handler();
-	  }
-	  if (HAL_UARTEx_SetRxFifoThreshold(&huart3, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
-	  {
-	    Error_Handler();
-	  }
-	  if (HAL_UARTEx_DisableFifoMode(&huart3) != HAL_OK)
-	  {
-	    Error_Handler();
-	  }
-	  /* USER CODE BEGIN USART3_Init 2 */
+	/* USER CODE END USART3_Init 1 */
+	huart3.Instance = USART3;
+	huart3.Init.BaudRate = 19200;
+	huart3.Init.WordLength = UART_WORDLENGTH_8B;
+	huart3.Init.StopBits = UART_STOPBITS_1;
+	huart3.Init.Parity = UART_PARITY_NONE;
+	huart3.Init.Mode = UART_MODE_TX_RX;
+	huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+	huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+	huart3.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+	huart3.Init.ClockPrescaler = UART_PRESCALER_DIV1;
+	huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+	HAL_RS485Ex_Init(&huart3, UART_DE_POLARITY_HIGH, 0, 0);
+	HAL_UARTEx_SetTxFifoThreshold(&huart3, UART_TXFIFO_THRESHOLD_1_8);
+	HAL_UARTEx_SetRxFifoThreshold(&huart3, UART_RXFIFO_THRESHOLD_1_8);
+	HAL_UARTEx_DisableFifoMode(&huart3);
 
-	  /* USER CODE END USART3_Init 2 */
+	/* USER CODE BEGIN USART3_Init 2 */
+
+	/* USER CODE END USART3_Init 2 */
 
 }
 //#endif
@@ -305,11 +294,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart){
 		  */
 		    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART3;
 		    PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
-		    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
-		    {
-		      Error_Handler();
-		    }
-
+		    HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit);
 		    /* USART3 clock enable */
 		    __HAL_RCC_USART3_CLK_ENABLE();
 

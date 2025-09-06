@@ -40,11 +40,13 @@ void UserTask(void const *argument) {
 	/* Infinite loop */
 	for (;;) {
 		yy++;
-
+				w[2] ++;
+				if (w[2]  >= 1000)
+					{w[2] =0;}
 		HAL_Delay(50);
-		ss=ReadModbusRegister(1, 0, 10, rr);
+		ss=ReadModbusRegister(2, 0, 10, rr);
 		HAL_Delay(50);
-		s=ReadModbusRegister(2, 0, 10, oo);
+		s=WriteModbusMultiRegisters(2, 0, 10, w);
 //		HAL_UART_Transmit_IT(&huart3, &d, 1);
 //		HAL_UART_Transmit(&huart3, &d, 1, 0xffff);
 //

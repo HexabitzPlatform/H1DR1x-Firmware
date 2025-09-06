@@ -11,7 +11,7 @@
 #ifndef __PORT_H
 #define __PORT_H
 
-#include "H1DR1.h"
+//#include "H1DR1.h"
 #include "H1DR1_uart.h"  // contains huart1..huart6
 
 /* ============================================================
