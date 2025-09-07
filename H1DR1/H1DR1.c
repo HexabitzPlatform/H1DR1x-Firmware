@@ -2,18 +2,14 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name  : H1DR1.c
- Description: Core source for H1DR1 module, managing RGB LED control.
- Features: CLI commands for LED on/off, color, RGB, toggle, pulse, sweep, dim.
- Peripherals: UART1-6, TIM2-4 (PWM for RGB), low-power modes (stop/standby).
- Flash: Stores topology and command snippets in RO sections.
- Tasks: RGBledTask handles dynamic LED effects (pulse, sweep, dim).
- */
+ File Name  : H1DR1_system.c
+ Description: Manages system configuration and communication for H1DR1 module.
+ Module_Peripheral_Init: Initializes UART1-6, DMA1, and GPIO ports A-B.
+ Modbus: Supports RTU and ASCII communication with register read/write operations.
+ Functions: Modbus communication, messaging tasks, and CLI command registration.
+*/
 /* Includes ****************************************************************/
 #include "BOS.h"
-#include "H1DR1.h"
-#include "mbm.h"
-
 /* Exported Typedef ********************************************************/
 /* Define UART variables */
 UART_HandleTypeDef huart1;
@@ -45,9 +41,8 @@ uint16_t msCounter;
 /* Timeout counter for Modbus operations */
 uint16_t TMOUT_Counter;
 
-/* Structure for receiving messaging data */
-struct rxMessaging_TypeDef rxMessaging;
-
+/* Flag for receiving messaging data */
+bool rxMessagingFlag= false ;
 /* Handle for RTC software timer */
 TimerHandle_t zTimer = NULL;
 
@@ -65,17 +60,14 @@ void Module_Peripheral_Init(void);
 void SetupPortForRemoteBootloaderUpdate(uint8_t port);
 uint8_t ClearROtopology(void);
 Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uint8_t dst, uint8_t shift);
-/* Handler for RTC software timer */
-static void RTC_HandleTimer(TimerHandle_t zTimer);
-
-/* Handler for Timeout software timer */
-static void TMOUT_HandleTimer(TimerHandle_t sTimer);
-
-/* ISR for Modbus protocol port */
-void prvvMBPUSART_RXNE_ISR(void);
 
 /* Local Function Prototypes ***********************************************/
-
+/* Handler for RTC software timer */
+static void RTC_HandleTimer(TimerHandle_t zTimer);
+/* Handler for Timeout software timer */
+static void TMOUT_HandleTimer(TimerHandle_t sTimer);
+/* ISR for Modbus protocol port */
+void prvvMBPUSART_RXNE_ISR(void);
 /* Create CLI commands *****************************************************/
 
 /* CLI command structure ***************************************************/
@@ -635,7 +627,7 @@ void SetRTC(uint8_t hour, uint8_t min, uint8_t sec) {
  */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 
-	rxMessaging.Flag = 1;
+	rxMessagingFlag = true;
 
 	if (huart == P_RS485uart) {
 		prvvMBPUSART_RXNE_ISR(); /* Call Modbus protocol port ISR */
@@ -656,7 +648,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
  */
 Module_Status SetupModbusRTU() {
 	Module_Status Status;
-	ULONG Pbit = 0;// This value is unused. It is defined here only to maintain library compatibility.
+	ULONG Pbit = 0;		// This value is unused. It is defined here only to maintain library compatibility.
 	ULONG ulBaudRate = 9600; // This value is unused. It is defined here only to maintain library compatibility.
 	/* Initialize Modbus port as RTU */
 	if (MB_ENOERR != eMBMSerialInit(&xMBMaster, MB_RTU, 1, ulBaudRate, Pbit)) {
@@ -676,8 +668,8 @@ Module_Status SetupModbusRTU() {
  */
 Module_Status SetupModbusASCII() {
 	Module_Status Status;
-	ULONG Pbit = 0;// This value is unused. It is defined here only to maintain library compatibility.
-	ULONG ulBaudRate = 9600;// This value is unused. It is defined here only to maintain library compatibility.
+	ULONG Pbit = 0; // This value is unused. It is defined here only to maintain library compatibility.
+	ULONG ulBaudRate = 9600; // This value is unused. It is defined here only to maintain library compatibility.
 	/* Initialize Modbus port as ASCII */
 	if (MB_ENOERR != eMBMSerialInit(&xMBMaster, MB_ASCII, 1, ulBaudRate, Pbit)) {
 		Status = H1DR1_ERROR;
@@ -696,8 +688,7 @@ Module_Status SetupModbusASCII() {
  * @param4: DataBuffer - pointer to a buffer where the read data will be stored.
  * @retval: Module_Status - status of the read process.
  */
-Module_Status ReadModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd,
-		uint8_t NofReg, unsigned short *DataBuffer) {
+Module_Status ReadModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd, uint8_t NofReg, unsigned short *DataBuffer) {
 	Module_Status Status;
 	unsigned short *Buffer = DataBuffer;
 
@@ -717,8 +708,7 @@ Module_Status ReadModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd,
  * @param3: Data - the data to be written.
  * @retval: Module_Status - status of the write process.
  */
-Module_Status WriteModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd,
-		uint32_t Data) {
+Module_Status WriteModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd, uint32_t Data) {
 	Module_Status Status;
 	if (MB_ENOERR != eMBMWriteSingleRegister(xMBMaster, SlaveAdd, RegAdd, Data)) {
 		Status = H1DR1_ERROR;
@@ -737,8 +727,7 @@ Module_Status WriteModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd,
  * @param4: Data - pointer to the data to be written.
  * @retval: Module_Status - status of the write process.
  */
-Module_Status WriteModbusMultiRegisters(uint8_t SlaveAdd, uint32_t RegAdd,
-		uint8_t NofReg, uint16_t *Data) {
+Module_Status WriteModbusMultiRegisters(uint8_t SlaveAdd, uint32_t RegAdd, uint8_t NofReg, uint16_t *Data) {
 	Module_Status Status;
 	USHORT *InBuffer = (USHORT*) Data;
 	if (MB_ENOERR != eMBMWriteMultipleRegisters(xMBMaster, SlaveAdd, RegAdd, NofReg, InBuffer)) {

@@ -3,11 +3,12 @@
  All rights reserved
 
  File Name  : H1DR1_uart.c
- Description: Configures USART instances for communication.
- UART: Initializes USART1-6, supports DMA, pin swapping, baudrate updates.
- Ports: Manages port directions, mutex-protected read/write operations.
- */
-
+ Description: Configures USART instances for communication in H1DR1 module.
+ UART: Initializes USART1-6 with DMA support, pin swapping, and baud rate updates.
+ Ports: Manages port directions with mutex-protected read/write operations.
+ Features: Supports Modbus communication, FIFO configuration, and port direction updates.
+ Functions: UART initialization, DMA setup, mutex-based read/write, baud rate updates, port direction management.
+*/
 /* Includes ****************************************************************/
 #include "BOS.h"
 
@@ -84,9 +85,8 @@ void MX_USART2_UART_Init(void){
 #endif
 
 /***************************************************************************/
-/* USART3 init function */
-//#ifdef _USART3
-void MX_USART3_UART_Init(void) {
+/* UARTInitModbus init function */
+void UARTInitModbus(void) {
 
 	/* USER CODE BEGIN USART3_Init 0 */
 
@@ -96,7 +96,7 @@ void MX_USART3_UART_Init(void) {
 
 	/* USER CODE END USART3_Init 1 */
 	huart3.Instance = USART3;
-	huart3.Init.BaudRate = 19200;
+	huart3.Init.BaudRate = 19200; /*This is the highest BaudRate that works with Modbus.*/
 	huart3.Init.WordLength = UART_WORDLENGTH_8B;
 	huart3.Init.StopBits = UART_STOPBITS_1;
 	huart3.Init.Parity = UART_PARITY_NONE;
@@ -116,7 +116,7 @@ void MX_USART3_UART_Init(void) {
 	/* USER CODE END USART3_Init 2 */
 
 }
-//#endif
+
 
 /***************************************************************************/
 /* USART4 init function */

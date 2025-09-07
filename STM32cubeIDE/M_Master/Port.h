@@ -11,9 +11,7 @@
 #ifndef __PORT_H
 #define __PORT_H
 
-//#include "H1DR1.h"
-#include "H1DR1_uart.h"  // contains huart1..huart6
-
+extern void UARTInitModbus(void);
 /* ============================================================
  ==============  CONFIGURATION SECTION  =====================
  Select which UART to use by enabling only one
@@ -42,7 +40,7 @@
 
 #define MB_UART_HANDLE      huart3
 #define MB_UART_INSTANCE    USART3
-#define MB_UART_INIT_FN()   MX_USART3_UART_Init()
+#define MB_UART_INIT_FN()   UARTInitModbus()
 
 /* ============================================================
  ==============  RS485 DIRECTION CONTROL  ===================
