@@ -65,7 +65,6 @@ void Module_Peripheral_Init(void);
 void SetupPortForRemoteBootloaderUpdate(uint8_t port);
 uint8_t ClearROtopology(void);
 Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uint8_t dst, uint8_t shift);
-void MessagingTask(void const *argument);
 /* Handler for RTC software timer */
 static void RTC_HandleTimer(TimerHandle_t zTimer);
 
@@ -474,18 +473,6 @@ void SetupPortForRemoteBootloaderUpdate(uint8_t port){
 	__HAL_UART_ENABLE_IT(huart,UART_IT_RXNE);
 
 }
-
-/***************************************************************************/
-/*
- * @brief: Task for handling messaging.
- * @param: argument - pointer to the task argument.
- * @retval: None
- */
-void MessagingTask(void const *argument) {
-
-	vTaskDelete(NULL);
-}
-
 /***************************************************************************/
 /* H1DR1 module initialization */
 void Module_Peripheral_Init(void) {
@@ -658,29 +645,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 	 the HAL_UART_RxCpltCallback can be implemented in the user file.
 	 */
 }
-/********************************************************************/
-/*
- * @brief: Initializes the Modbus module.
- * @param: None
- * @retval: None
- */
-void Modbus_task_Init(void) {
-
-	/* RS485 port */
-	RS485_TX_ENABLE();
-	/* Definition and creation of software timers */
-	zTimer = xTimerCreate("RTC_Timer", pdMS_TO_TICKS(1), pdTRUE,
-			(void*) TIMERID_RTC_TIMER, RTC_HandleTimer);
-	xTimerStart(zTimer, portMAX_DELAY);
-
-	sTimer = xTimerCreate("TimeOut_Timer", pdMS_TO_TICKS(1), pdTRUE,
-			(void*) TIMERID_TMOUT_TIMER, TMOUT_HandleTimer);
-	xTimerStart(sTimer, portMAX_DELAY);
-
-	osThreadDef(defaultTask, MessagingTask, osPriorityNormal, 0, 8 * 128);
-	MessagingTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
-
-}
 /***************************************************************************/
 /***************************** General Functions ***************************/
 /***************************************************************************/
@@ -692,8 +656,8 @@ void Modbus_task_Init(void) {
  */
 Module_Status SetupModbusRTU() {
 	Module_Status Status;
-	ULONG Pbit = 0;
-	ULONG ulBaudRate = 9600;
+	ULONG Pbit = 0;// This value is unused. It is defined here only to maintain library compatibility.
+	ULONG ulBaudRate = 9600; // This value is unused. It is defined here only to maintain library compatibility.
 	/* Initialize Modbus port as RTU */
 	if (MB_ENOERR != eMBMSerialInit(&xMBMaster, MB_RTU, 1, ulBaudRate, Pbit)) {
 		Status = H1DR1_ERROR;
@@ -712,8 +676,8 @@ Module_Status SetupModbusRTU() {
  */
 Module_Status SetupModbusASCII() {
 	Module_Status Status;
-	ULONG Pbit = 0;
-	ULONG ulBaudRate = 9600;
+	ULONG Pbit = 0;// This value is unused. It is defined here only to maintain library compatibility.
+	ULONG ulBaudRate = 9600;// This value is unused. It is defined here only to maintain library compatibility.
 	/* Initialize Modbus port as ASCII */
 	if (MB_ENOERR != eMBMSerialInit(&xMBMaster, MB_ASCII, 1, ulBaudRate, Pbit)) {
 		Status = H1DR1_ERROR;
@@ -784,19 +748,12 @@ Module_Status WriteModbusMultiRegisters(uint8_t SlaveAdd, uint32_t RegAdd,
 	}
 	return Status;
 }
-
 /********************************************************************/
 /*
  * @brief: Sets timeout for a slave on Modbus port.
  * @param1: MiliSeconds - the timeout duration in milliseconds.
  * @retval: Module_Status - status of the timeout setting process.
  */
-/********************************************************************/
-/*
- * @brief: Sets timeout for a slave on Modbus port.
- * @param1: MiliSeconds - the timeout duration in milliseconds.
- * @retval: Module_Status - status of the timeout setting process.
-// */
 Module_Status SetTimeOut(uint16_t MiliSeconds) {
 	Module_Status Status;
 	USHORT timeout = (USHORT) MiliSeconds;

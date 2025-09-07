@@ -141,14 +141,6 @@ extern void MX_USART4_UART_Init(void);
 extern void MX_USART5_UART_Init(void);
 extern void MX_USART6_UART_Init(void);
 extern void SystemClock_Config(void);
-
-
-/*
- * @brief: Initializes the Modbus task.
- * @param: None
- * @retval: None
- */
-void Modbus_task_Init(void);
 /*
  * @brief: Sets up the Modbus RTU communication.
  * @param1: BaudRate - the baud rate for communication.
