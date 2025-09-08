@@ -141,11 +141,11 @@ Module_Status SetupModbusRTU();
 
 Module_Status SetupModbusASCII();
 
-Module_Status ReadModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd, uint8_t NofReg, unsigned short *DataBuffer);
+Module_Status ReadModbusRegister(uint8_t SlaveAdd, unsigned short *DataBuffer, uint32_t RegAdd, uint8_t NofReg);
 
-Module_Status WriteModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd, uint32_t Data);
+Module_Status WriteModbusRegister(uint8_t SlaveAdd, uint32_t Data, uint32_t RegAdd);
 
-Module_Status WriteModbusMultiRegisters(uint8_t SlaveAdd, uint32_t RegAdd, uint8_t NofReg, uint16_t *Data);
+Module_Status WriteModbusMultiRegisters(uint8_t SlaveAdd, uint16_t *Data, uint32_t RegAdd, uint8_t NofReg);
 
 Module_Status SetTimeOut(uint16_t MiliSeconds);
 

@@ -688,7 +688,7 @@ Module_Status SetupModbusASCII() {
  * @param4: DataBuffer - pointer to a buffer where the read data will be stored.
  * @retval: Module_Status - status of the read process.
  */
-Module_Status ReadModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd, uint8_t NofReg, unsigned short *DataBuffer) {
+Module_Status ReadModbusRegister(uint8_t SlaveAdd, unsigned short *DataBuffer, uint32_t RegAdd, uint8_t NofReg) {
 	Module_Status Status;
 	unsigned short *Buffer = DataBuffer;
 
@@ -708,7 +708,7 @@ Module_Status ReadModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd, uint8_t NofR
  * @param3: Data - the data to be written.
  * @retval: Module_Status - status of the write process.
  */
-Module_Status WriteModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd, uint32_t Data) {
+Module_Status WriteModbusRegister(uint8_t SlaveAdd, uint32_t Data, uint32_t RegAdd) {
 	Module_Status Status;
 	if (MB_ENOERR != eMBMWriteSingleRegister(xMBMaster, SlaveAdd, RegAdd, Data)) {
 		Status = H1DR1_ERROR;
@@ -727,7 +727,7 @@ Module_Status WriteModbusRegister(uint8_t SlaveAdd, uint32_t RegAdd, uint32_t Da
  * @param4: Data - pointer to the data to be written.
  * @retval: Module_Status - status of the write process.
  */
-Module_Status WriteModbusMultiRegisters(uint8_t SlaveAdd, uint32_t RegAdd, uint8_t NofReg, uint16_t *Data) {
+Module_Status WriteModbusMultiRegisters(uint8_t SlaveAdd, uint16_t *Data, uint32_t RegAdd, uint8_t NofReg) {
 	Module_Status Status;
 	USHORT *InBuffer = (USHORT*) Data;
 	if (MB_ENOERR != eMBMWriteMultipleRegisters(xMBMaster, SlaveAdd, RegAdd, NofReg, InBuffer)) {
