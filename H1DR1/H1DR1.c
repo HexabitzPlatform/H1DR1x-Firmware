@@ -646,9 +646,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
  * @param2: ParityBit - the parity setting (e.g., none, even, odd).
  * @retval: Module_Status - status of the setup process.
  */
+/* Initializes Modbus RTU master communication,returning the setup status. */
 Module_Status SetupModbusRTU() {
 	Module_Status Status;
-	ULONG Pbit = 0;		// This value is unused. It is defined here only to maintain library compatibility.
+	ULONG Pbit = 0; // This value is unused. It is defined here only to maintain library compatibility.
 	ULONG ulBaudRate = 9600; // This value is unused. It is defined here only to maintain library compatibility.
 	/* Initialize Modbus port as RTU */
 	if (MB_ENOERR != eMBMSerialInit(&xMBMaster, MB_RTU, 1, ulBaudRate, Pbit)) {
@@ -666,6 +667,7 @@ Module_Status SetupModbusRTU() {
  * @param2: ParityBit - the parity setting (e.g., none, even, odd).
  * @retval: Module_Status - status of the setup process.
  */
+/* Initializes Modbus ASCII master communication,returning the setup status. */
 Module_Status SetupModbusASCII() {
 	Module_Status Status;
 	ULONG Pbit = 0; // This value is unused. It is defined here only to maintain library compatibility.
@@ -688,6 +690,7 @@ Module_Status SetupModbusASCII() {
  * @param4: DataBuffer - pointer to a buffer where the read data will be stored.
  * @retval: Module_Status - status of the read process.
  */
+/* Reads data from a Modbus slave device's holding registers, storing it in a buffer and returning the read status. */
 Module_Status ReadModbusRegister(uint8_t SlaveAdd, unsigned short *DataBuffer, uint32_t RegAdd, uint8_t NofReg) {
 	Module_Status Status;
 	unsigned short *Buffer = DataBuffer;
@@ -708,6 +711,7 @@ Module_Status ReadModbusRegister(uint8_t SlaveAdd, unsigned short *DataBuffer, u
  * @param3: Data - the data to be written.
  * @retval: Module_Status - status of the write process.
  */
+/* Writes data to a Modbus slave device's single register,returning the write status.*/
 Module_Status WriteModbusRegister(uint8_t SlaveAdd, uint32_t Data, uint32_t RegAdd) {
 	Module_Status Status;
 	if (MB_ENOERR != eMBMWriteSingleRegister(xMBMaster, SlaveAdd, RegAdd, Data)) {
@@ -727,6 +731,7 @@ Module_Status WriteModbusRegister(uint8_t SlaveAdd, uint32_t Data, uint32_t RegA
  * @param4: Data - pointer to the data to be written.
  * @retval: Module_Status - status of the write process.
  */
+/* Writes multiple data bytes to a Modbus slave device's registers, returning the write status. */
 Module_Status WriteModbusMultiRegisters(uint8_t SlaveAdd, uint16_t *Data, uint32_t RegAdd, uint8_t NofReg) {
 	Module_Status Status;
 	USHORT *InBuffer = (USHORT*) Data;
@@ -743,6 +748,7 @@ Module_Status WriteModbusMultiRegisters(uint8_t SlaveAdd, uint16_t *Data, uint32
  * @param1: MiliSeconds - the timeout duration in milliseconds.
  * @retval: Module_Status - status of the timeout setting process.
  */
+/* Sets the timeout duration for a Modbus slave's response to the master, indicating a problem if no response is received within this time.*/
 Module_Status SetTimeOut(uint16_t MiliSeconds) {
 	Module_Status Status;
 	USHORT timeout = (USHORT) MiliSeconds;

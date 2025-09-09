@@ -36,12 +36,14 @@ int main(void) {
 uint16_t Master_Receive_buffer[10];
 uint16_t Master_Transmit_buffer[10] = { 0, 1, 2, 3, 4, 0, 1, 2, 3, 4 };
 Module_Status Master_Rstatus, Master_wstatus;
+//uint32_t Data_buffer ;
 void UserTask(void const *argument) {
 	SetupModbusRTU();
 	SetTimeOut(500);
 
 	/* Infinite loop */
 	while(1) {
+//		WriteModbusRegister(2, Data_buffer, 5);
 //		Delay_ms(100);
 //		Master_wstatus = WriteModbusMultiRegisters(2, Master_Transmit_buffer, STARTING_ADDRESS, NUMBER_OF_REGISTERS);
 //		Delay_ms(100);
