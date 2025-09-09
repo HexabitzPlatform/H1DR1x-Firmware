@@ -6,7 +6,7 @@
  Description: Manages system configuration and communication for H1DR1 module.
  Module_Peripheral_Init: Initializes UART1-6, DMA1, and GPIO ports A-B.
  Modbus: Supports RTU and ASCII communication with register read/write operations.
- Functions: Modbus communication, messaging tasks, and CLI command registration.
+ Functions: Modbus communication.
 */
 /* Includes ****************************************************************/
 #include "BOS.h"

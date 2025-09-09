@@ -3,14 +3,12 @@
  All rights reserved
 
  File Name  : H1DR1.h
- Description: Header for H1DR1 module, defining hardware and software interfaces.
- Module: RGB LED control with UART communication.
- Ports: 6 UART ports (USART1-6) mapped to P1-P6.
- Timers: TIM2-4 for RGB PWM (red, green, blue).
- LED: Indicator LED on GPIOB14.
- Enums: Basic colors, RGB LED modes (pulse, sweep, dim).
- Status: Module-specific error codes.
- */
+ Description: Defines module interfaces and configurations for H1DR1.
+ Ports: Supports 5 UART ports (P1-P5) with P2 for ST bootloader update.
+ UART: Configures USART1-2, USART4-6 with GPIO pin mappings.
+ Modbus: Supports RTU and ASCII communication with register read/write.
+ Functions: Modbus communication, RTC configuration.
+*/
 
 /* Define to prevent recursive inclusion ***********************************/
 #ifndef H1DR1_H
@@ -39,12 +37,10 @@
 #define _P3
 #define _P4
 #define _P5
-//#define _P6
 
 /* Define Available USARTs */
 #define _USART1
 #define _USART2
-//#define _USART3
 #define _USART4
 #define _USART5
 #define _USART6
@@ -55,7 +51,7 @@
 #define UART_P3 &huart6
 #define UART_P4 &huart1
 #define UART_P5 &huart5
-//#define UART_P6 &huart3
+
 
 /* Module-specific Hardware Definitions ************************************/
 /* Port Definitions */
@@ -71,11 +67,11 @@
 #define	USART2_RX_PORT		GPIOA
 #define	USART2_AF			GPIO_AF1_USART2
 //
-//#define	USART3_TX_PIN		GPIO_PIN_10
-//#define	USART3_RX_PIN		GPIO_PIN_11
-//#define	USART3_TX_PORT		GPIOB
-//#define	USART3_RX_PORT		GPIOB
-//#define	USART3_AF			GPIO_AF4_USART3
+#define	USART3_TX_PIN		GPIO_PIN_10
+#define	USART3_RX_PIN		GPIO_PIN_11
+#define	USART3_TX_PORT		GPIOB
+#define	USART3_RX_PORT		GPIOB
+#define	USART3_AF			GPIO_AF4_USART3
 
 #define	USART4_TX_PIN		GPIO_PIN_0
 #define	USART4_RX_PIN		GPIO_PIN_1
@@ -138,17 +134,11 @@ extern void SystemClock_Config(void);
 /***************************************************************************/
 
 Module_Status SetupModbusRTU();
-
 Module_Status SetupModbusASCII();
-
 Module_Status ReadModbusRegister(uint8_t SlaveAdd, unsigned short *DataBuffer, uint32_t RegAdd, uint8_t NofReg);
-
 Module_Status WriteModbusRegister(uint8_t SlaveAdd, uint32_t Data, uint32_t RegAdd);
-
 Module_Status WriteModbusMultiRegisters(uint8_t SlaveAdd, uint16_t *Data, uint32_t RegAdd, uint8_t NofReg);
-
 Module_Status SetTimeOut(uint16_t MiliSeconds);
-
 void SetRTC(uint8_t hour, uint8_t min, uint8_t sec);
 
 #endif /* H1DR1_H */

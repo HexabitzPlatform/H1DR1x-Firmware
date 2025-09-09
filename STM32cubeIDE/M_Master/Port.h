@@ -11,7 +11,7 @@
 #ifndef __PORT_H
 #define __PORT_H
 
-extern void UARTInitModbus(void);
+#include "H1DR1_uart.h"
 /* ============================================================
  ==============  CONFIGURATION SECTION  =====================
  Select which UART to use by enabling only one

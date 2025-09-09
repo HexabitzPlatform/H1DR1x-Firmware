@@ -41,16 +41,13 @@ void UserTask(void const *argument) {
 	SetTimeOut(500);
 
 	/* Infinite loop */
-	for (;;) {
-		Delay_ms(100);
-		Master_wstatus = WriteModbusMultiRegisters(2, Master_Transmit_buffer, STARTING_ADDRESS, NUMBER_OF_REGISTERS);
-		Delay_ms(100);
-		Master_Rstatus = ReadModbusRegister(2, Master_Receive_buffer, STARTING_ADDRESS, NUMBER_OF_REGISTERS);
+	while(1) {
+//		Delay_ms(100);
+//		Master_wstatus = WriteModbusMultiRegisters(2, Master_Transmit_buffer, STARTING_ADDRESS, NUMBER_OF_REGISTERS);
+//		Delay_ms(100);
+//		Master_Rstatus = ReadModbusRegister(2, Master_Receive_buffer, STARTING_ADDRESS, NUMBER_OF_REGISTERS);
 	}
 	/* USER CODE END StartDefaultTask */
 }
-
 /***************************************************************************/
 /***************** (C) COPYRIGHT HEXABITZ ***** END OF FILE ****************/
-
-
